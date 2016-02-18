@@ -4,6 +4,7 @@ DOCKER = docker run -it --rm -v $(PWD):/testplugin -v $(PWD)/test:/home "$(IMAGE
 
 test-setup:
 	mkdir -p $(PLUGINS)
+	docker pull tweekmonster/ubuntu-vims
 	cd $(PLUGINS) && git clone https://github.com/junegunn/vader.vim.git
 
 test:

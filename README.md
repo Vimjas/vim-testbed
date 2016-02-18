@@ -1,4 +1,7 @@
-# Vim Testbed [![Build Status](https://travis-ci.org/tweekmonster/vim-testbed.svg?branch=master)](https://travis-ci.org/tweekmonster/vim-testbed)
+# Vim Testbed
+
+[![Build Status](https://travis-ci.org/tweekmonster/vim-testbed.svg?branch=master)](https://travis-ci.org/tweekmonster/vim-testbed)
+[![](https://badge.imagelayers.io/tweekmonster/vim-testbed:latest.svg)](https://imagelayers.io/?images=tweekmonster/vim-testbed:latest)
 
 Because unit testing a Vim plugin is a pain in the ass.
 

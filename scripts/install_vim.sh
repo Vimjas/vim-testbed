@@ -20,7 +20,7 @@ build() {
   VIM_PATH="/vim-build/$VIM_NAME"
   VIM_BIN="$VIM_PATH/bin/vim"
 
-  CONFIG_ARGS="--prefix=$VIM_PATH"
+  CONFIG_ARGS="--prefix=$VIM_PATH --enable-multibyte --without-x --enable-gui=no --with-compiledby=\"vim-testbed\""
 
   if [ $PYTHON -eq 2 ]; then
     CONFIG_ARGS="$CONFIG_ARGS --enable-pythoninterp"
@@ -28,7 +28,7 @@ build() {
   fi
 
   if [ $PYTHON -eq 3 ]; then
-    CONFIG_ARGS="$CONFIG_ARGS --enable-python3interp"
+    CONFIG_ARGS="$CONFIG_ARGS --enable-python3interp=dynamic"
     apk add python3-dev
   fi
 
@@ -51,10 +51,11 @@ build() {
   if [ ! -d $BUILD_DIR ]; then
     # The git package adds about 200MB+ to the image.  So, no cloning.
     echo "Downloading $TAG"
-    curl -sSL "https://github.com/vim/vim/archive/${TAG}.tar.gz" | tar zx
+    curl -SL "https://github.com/vim/vim/archive/${TAG}.tar.gz" | tar zx
   fi
 
   cd $BUILD_DIR
+  echo "Configuring with: $CONFIG_ARGS"
   ./configure $CONFIG_ARGS || bail "Could not configure"
   make CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2" -j4 || bail "Make failed"
   make install || bail "Install failed"

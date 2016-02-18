@@ -3,8 +3,9 @@ sudo: required
 services:
   - docker
 
-before_install:
-  - cd example && make setup-test
+before_script: |
+  cd example
+  make test-setup
 
-script:
-  - cd example && make test
+script: |
+  make test

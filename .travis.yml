@@ -1,0 +1,10 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - cd example && make setup-test
+
+script:
+  - cd example && make test

@@ -1,0 +1,11 @@
+Given:
+  hello
+
+Do:
+  ^
+
+Expect:
+  hello
+
+Execute:
+  AssertEqual 1, g:example_plugin

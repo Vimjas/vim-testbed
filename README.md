@@ -17,7 +17,8 @@ future tests.
 
 ## Usage
 
-The README is a work in progress.  Take a look in the `example` directory.
+The README is a work in progress.  Take a look in the `example` directory and
+[ubuntu-vims](https://github.com/tweekmonster/ubuntu-vims).
 
 You will need to create your own Dockerfile, build an image, then push it to
 your [Docker Hub](https://hub.docker.com/) repository.

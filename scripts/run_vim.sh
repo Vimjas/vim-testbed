@@ -3,6 +3,11 @@
 BIN=$1
 shift
 
+if [ "$BIN" == "bash" ]; then
+  exec /bin/bash
+  exit $?
+fi
+
 # Set default vimrc to a visible file
 ARGS="-u /home/vimrc -i NONE"
 

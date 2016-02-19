@@ -1,0 +1,24 @@
+#!/bin/bash
+
+{
+  if [ ! -f /etc/profile.d/pyenv.sh ]; then
+    apt-get --no-install-recommends install -y libssl-dev zlib1g-dev libbz2-dev \
+      libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev
+
+    curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
+
+    cat <<PYENV >> /etc/profile.d/pyenv.sh
+export PATH="/pyenv/bin:\$PATH"
+eval "\$(pyenv init -)"
+PYENV
+  fi
+
+  if [ ! -d "$PYENV_ROOT/versions/$1" ]; then
+    source /etc/profile.d/pyenv.sh
+    env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install $1 || exit 1
+  fi
+
+  pyenv shell $1
+} 1>&2
+
+[ $? -eq 0 ] && echo $(pyenv prefix)

@@ -1,0 +1,159 @@
+#!/bin/bash
+
+apt-get update
+
+bail() {
+  echo $@
+  exec /bin/bash
+  exit 1
+}
+
+
+TAG=""
+NAME=""
+PYTHON=""
+RUBY=""
+LUA=""
+
+build() {
+  [ -z $NAME ] && NAME="vim-${TAG}"
+
+  mkdir -p /vim-build/bin
+  EXTRA_PATH=""
+  LD_LIB_PATH=""
+  VIM_NAME="vim_${TAG}_py${PYTHON}_rb${RUBY}_lua${LUA}"
+  VIM_PATH="/vim-build/$VIM_NAME"
+  VIM_BIN="$VIM_PATH/bin/vim"
+
+  CONFIG_ARGS="--prefix=$VIM_PATH --enable-multibyte --without-x --enable-gui=no --with-compiledby=\"vim-testbed\""
+
+  # Currently using pyenv and rvm to install Python and Ruby.  Might rewrite
+  # the scripts to build them directly instead of leaning on installers if
+  # container size is going to be a huge deal.  Build speed could also be
+  # improved if the source repos were cloned instead of downloading specific
+  # versions (for Python at least (Ruby is confusing)).
+
+  if [ -n "$PYTHON" ]; then
+    PY_PREFIX=$(install_python $PYTHON)
+    [ $? -ne 0 ] && bail "There was a problem installing Python $PYTHON"
+    [ -z "$PY_PREFIX" ] && bail "Could not install Python $PYTHON"
+
+    PY_CONFIG=$(find $PY_PREFIX/lib -type d -name config\*)
+    LD_LIB_PATH="$PY_PREFIX/lib:$LD_LIB_PATH"
+
+    EXTRA_PATH="/pyenv/versions/$PYTHON/bin:$EXTRA_PATH"
+
+    if [[ "$PYTHON" =~ ^3 ]]; then
+      CONFIG_ARGS+=" --enable-python3interp=dynamic --with-python3-config-dir=$PY_CONFIG --disable-pythoninterp"
+    else
+      CONFIG_ARGS+=" --enable-pythoninterp --with-python-config-dir=$PY_CONFIG --disable-python3interp"
+    fi
+  fi
+
+  if [ -n "$RUBY" ]; then
+    RB_PATH=$(install_ruby $RUBY)
+    [ -z "$RB_PATH" ] && bail "Could not install Ruby $RUBY"
+    CONFIG_ARGS+=" --enable-rubyinterp --with-ruby-command=$RB_PATH"
+    EXTRA_PATH="$(dirname $RB_PATH):$EXTRA_PATH"
+  fi
+
+  if [ -n "$LUA" ]; then
+    apt-get -y install liblua5.2-dev
+    CONFIG_ARGS+="$CONFIG_ARGS --enable-luainterp"
+  fi
+
+  BUILD_DIR="vim-${TAG#v}"
+
+  apt-get -y install build-essential make libncurses5-dev git
+
+  if [ ! -d /vim ]; then
+    git clone https://github.com/vim/vim /vim
+  fi
+
+  cd /vim
+
+  echo "Configuring with: $CONFIG_ARGS"
+
+  EXTRA_PATH="${EXTRA_PATH%:}"
+  LD_LIB_PATH="${LD_LIB_PATH%:}"
+
+  git checkout $TAG || bail "Could not checkout Vim $TAG"
+  env PATH="$EXTRA_PATH:$PATH" LD_LIBRARY_PATH="$LD_LIB_PATH:$LD_LIBRARY_PATH" ./configure $CONFIG_ARGS || bail "Could not configure"
+  make CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2" -j4 || bail "Make failed"
+  make install || bail "Install failed"
+
+  # Retain the environment for Frankenvim in a script
+  cat <<VIMRUN > /vim-build/bin/$NAME
+#!/bin/bash
+env PATH="$EXTRA_PATH:\$PATH" LD_LIBRARY_PATH="$LD_LIB_PATH:\$LD_LIBRARY_PATH" $VIM_BIN "\$@"
+VIMRUN
+
+  chmod +x /vim-build/bin/$NAME
+
+  make distclean
+  git clean -df
+}
+
+OPTS=$(getopt -o : -l tag::,vim::,name::,py::,ruby::,lua,build -n $(basename $BASH_SOURCE) -- "$@")
+eval set -- "$OPTS"
+
+while [ $# -gt 0 ]; do
+  case $1 in
+    --tag|--vim)
+      TAG="$2"
+      shift
+      ;;
+    --name)
+      NAME="$2"
+      shift
+      ;;
+    --py)
+      if [ -z "$2" ]; then
+        PYTHON="2.7.11"
+      else
+        PYTHON=$2
+      fi
+      shift
+      ;;
+    --ruby)
+      if [ -z "$2" ]; then
+        RUBY="2.3.0"
+      else
+        RUBY=$2
+      fi
+      shift
+      ;;
+    --lua)
+      # Need to look into Lua, and maybe Perl
+      LUA="1"
+      ;;
+    --build)
+      [ -z "$TAG" ] && bail "--vim is required"
+      build
+      TAG=""
+      NAME=""
+      PYTHON=""
+      RUBY=""
+      LUA=""
+      ;;
+    --)
+      shift
+      break
+      ;;
+  esac
+
+  shift
+done
+
+if [ -f /etc/profile.d/rvm.sh ]; then
+  source /etc/profile.d/rvm.sh
+  rvm cleanup all
+fi
+
+apt-get -y autoremove --purge build-essential libssl-dev zlib1g-dev libbz2-dev \
+        libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+        gawk libyaml-dev sqlite3 autoconf libgdbm-dev automake libtool bison pkg-config libffi-dev \
+        git make
+apt-get -y autoremove --purge
+apt-get clean
+rm -rf /vim

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+{
+  if [ ! -f /etc/profile.d/rvm.sh ]; then
+    gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+    curl -sSL https://get.rvm.io | bash -s stable
+  fi
+
+  source /etc/profile.d/rvm.sh
+
+  rvm use $1 || rvm install $1 || exit 1
+} 1>&2
+
+[ $? -eq 0 ] && which ruby

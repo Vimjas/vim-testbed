@@ -1,18 +1,15 @@
-FROM alpine:3.3
+FROM debian:jessie
 
-RUN apk --update add bash
-RUN adduser -h /home -s /bin/bash -D -u 8465 vimtest
+ENV PATH="/scripts:$PATH"
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYENV_ROOT=/pyenv
 
-RUN mkdir -p /vim /vim-build/bin /plugins
-RUN chown vimtest:vimtest /home /plugins
+RUN adduser --home /home --shell /bin/bash --uid 8465 --gecos "" --disabled-password vimtest
+RUN chown -R vimtest:vimtest /home
 
-ADD scripts/argecho.sh /vim-build/bin/argecho
-ADD scripts/install_vim.sh /sbin/install_vim
-ADD scripts/run_vim.sh /sbin/run_vim
-
-RUN chmod +x /vim-build/bin/argecho /sbin/install_vim /sbin/run_vim
-
-ADD scripts/rtp.vim /rtp.vim
+ADD rtp.vim /rtp.vim
+ADD scripts /scripts
+RUN chmod +x /scripts/*
 
 # The user directory for setup
 VOLUME /home
@@ -20,4 +17,4 @@ VOLUME /home
 # Your plugin
 VOLUME /testplugin
 
-ENTRYPOINT ["/sbin/run_vim"]
+ENTRYPOINT ["/scripts/run_vim"]

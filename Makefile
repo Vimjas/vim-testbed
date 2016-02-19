@@ -2,4 +2,4 @@
 
 
 build:
-	docker build -t "tweekmonster/vim-testbed" .
+	docker build -t "tweekmonster/vim-testbed:debian" .

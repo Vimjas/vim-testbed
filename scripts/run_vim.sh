@@ -3,9 +3,11 @@
 BIN=$1
 shift
 
-if [ "$BIN" == "bash" ]; then
+if [ "$BIN" == "bash" ] || [ -z "$BIN" ]; then
   exec /bin/bash
-  exit $?
+fi
+if [ -n "$(/usr/bin/which "$BIN")" ]; then
+  exec "$BIN" "$@"
 fi
 
 # Set default vimrc to a visible file

@@ -1,7 +1,9 @@
-#/bin/bash
+#!/bin/bash
+
+set -e
 
 bail() {
-  echo $@
+  echo "$@"
   exit 1
 }
 
@@ -20,7 +22,7 @@ build() {
   VIM_PATH="/vim-build/$VIM_NAME"
   VIM_BIN="$VIM_PATH/bin/vim"
 
-  CONFIG_ARGS="--prefix=$VIM_PATH --enable-multibyte --without-x --enable-gui=no --with-compiledby=\"vim-testbed\""
+  CONFIG_ARGS="--prefix=$VIM_PATH --enable-multibyte --without-x --enable-gui=no --with-compiledby=vim-testbed"
 
   if [ $PYTHON -eq 2 ]; then
     CONFIG_ARGS="$CONFIG_ARGS --enable-pythoninterp"
@@ -56,6 +58,7 @@ build() {
 
   cd $BUILD_DIR
   echo "Configuring with: $CONFIG_ARGS"
+  # shellcheck disable=SC2086
   ./configure $CONFIG_ARGS || bail "Could not configure"
   make CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2" -j4 || bail "Make failed"
   make install || bail "Install failed"

@@ -64,7 +64,7 @@ Docker Hub repository, or setup an [automated build](https://docs.docker.com/doc
 ### Run
 
 ```shell
-docker run -it --rm -v $(PWD):/testplugin -v $(PWD)/test:/home "your/repository" vim74 '+Vader! test/*'
+docker run -it --rm -v $PWD:/testplugin -v $PWD/test:/home "your/repository" vim74 '+Vader! test/*'
 ```
 
 The entry point for the container is a script that runs the named Vim version.

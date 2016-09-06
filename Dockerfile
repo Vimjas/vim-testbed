@@ -1,4 +1,4 @@
-FROM alpine:3.3
+FROM alpine:3.4
 
 RUN apk --update add bash
 RUN adduser -h /home -s /bin/bash -D -u 8465 vimtest

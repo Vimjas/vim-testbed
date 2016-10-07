@@ -48,7 +48,8 @@ build() {
 
   BUILD_DIR="vim-${TAG#v}"
 
-  apk info -q vim-build > /dev/null || apk add --virtual vim-build make ncurses-dev curl gcc libc-dev
+  apk info -q vim-build > /dev/null \
+    || apk add --virtual vim-build make ncurses-dev curl gcc libc-dev
 
   if [ ! -d $BUILD_DIR ]; then
     # The git package adds about 200MB+ to the image.  So, no cloning.

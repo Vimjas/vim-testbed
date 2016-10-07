@@ -7,12 +7,13 @@ bail() {
   exit 1
 }
 
-
-TAG=""
-NAME=""
-PYTHON=0
-RUBY=0
-LUA=0
+init_vars() {
+  TAG=
+  NAME=
+  PYTHON=0
+  RUBY=0
+  LUA=0
+}
 
 build() {
   [ -z $NAME ] && NAME="vim-${TAG}"
@@ -73,6 +74,7 @@ build() {
 
 apk update
 
+init_vars
 while [ $# -gt 0 ]; do
   case $1 in
     -name)
@@ -105,11 +107,7 @@ while [ $# -gt 0 ]; do
       # installing all Vim versions becomes one layer.
       # Side note: tried docker-squash and it didn't seem to do anything.
       build
-      NAME=""
-      TAG=""
-      PYTHON=0
-      RUBY=0
-      LUA=0
+      init_vars
       ;;
   esac
 

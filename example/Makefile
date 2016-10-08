@@ -1,17 +1,17 @@
+IMAGE ?= tweekmonster/ubuntu-vims
 PLUGINS = test/plugins
-IMAGE = tweekmonster/ubuntu-vims
 DOCKER = docker run -it --rm -v $(PWD):/testplugin -v $(PWD)/test:/home "$(IMAGE)"
 
-test-setup:
+$(PLUGINS)/vader.vim:
 	mkdir -p $(PLUGINS)
-	docker pull tweekmonster/ubuntu-vims
 	cd $(PLUGINS) && git clone https://github.com/junegunn/vader.vim.git
 
-test:
-	 $(DOCKER) vim-precise '+Vader! test/*'
-	 $(DOCKER) vim-trusty '+Vader! test/*'
-	 $(DOCKER) vim-vivid '+Vader! test/*'
-	 $(DOCKER) vim-wily '+Vader! test/*'
-	 $(DOCKER) vim-xenial '+Vader! test/*'
+test-setup: $(PLUGINS)/vader.vim
+	docker images -q $(IMAGE) || docker pull $(IMAGE)
+
+test: test-setup
+	for vim in $$(docker run --rm $(IMAGE) ls /vim-build/bin | grep -E '^n?vim'); do \
+	  $(DOCKER) $$vim '+Vader! test/*'; \
+	done
 
 .PHONY: test-setup test

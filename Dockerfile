@@ -5,6 +5,9 @@ RUN adduser -h /home -s /bin/sh -D -u 8465 vimtest
 RUN mkdir -p /vim /vim-build/bin /plugins
 RUN chown vimtest:vimtest /home /plugins
 
+# Useful during tests to have these packages in a deeper layer cached already.
+# RUN apk --no-cache add --virtual vim-build build-base
+
 ADD scripts/argecho.sh /vim-build/bin/argecho
 ADD scripts/install_vim.sh /sbin/install_vim
 ADD scripts/run_vim.sh /sbin/run_vim

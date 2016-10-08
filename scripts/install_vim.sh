@@ -104,6 +104,7 @@ while [ $# -gt 0 ]; do
       # expects a -build flag to signal the start of a build.  This way,
       # installing all Vim versions becomes one layer.
       # Side note: tried docker-squash and it didn't seem to do anything.
+      echo "=== building: NAME=$NAME, TAG=$TAG, PYTHON=$PYTHON, RUBY=$RUBY, LUA=$LUA ==="
       build
       NAME=""
       TAG=""
@@ -116,6 +117,7 @@ while [ $# -gt 0 ]; do
   shift
 done
 
+echo "Pruning packages and dirs.."
 apk del vim-build
 rm -rf /vim/*
 rm -rf /var/cache/apk/* /tmp/* /var/tmp/*

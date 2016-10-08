@@ -10,10 +10,8 @@ test-setup: $(PLUGINS)/vader.vim
 	docker images -q $(IMAGE) || docker pull $(IMAGE)
 
 test: test-setup
-	 $(DOCKER) vim-precise '+Vader! test/*'
-	 $(DOCKER) vim-trusty '+Vader! test/*'
-	 $(DOCKER) vim-vivid '+Vader! test/*'
-	 $(DOCKER) vim-wily '+Vader! test/*'
-	 $(DOCKER) vim-xenial '+Vader! test/*'
+	for vim in $$(docker run --rm $(IMAGE) ls /vim-build/bin | grep -E '^n?vim'); do \
+	  $(DOCKER) $$vim '+Vader! test/*'; \
+	done
 
 .PHONY: test-setup test

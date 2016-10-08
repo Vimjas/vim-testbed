@@ -6,7 +6,7 @@ shift
 if [ "$BIN" == "bash" ] || [ -z "$BIN" ]; then
   exec /bin/bash
 fi
-if [ -n "$(/usr/bin/which "$BIN")" ]; then
+if ! [ -x "/vim-build/bin/$BIN" ]; then
   exec "$BIN" "$@"
 fi
 

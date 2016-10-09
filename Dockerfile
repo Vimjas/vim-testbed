@@ -1,6 +1,8 @@
 FROM alpine:3.4
 
-RUN apk --update add bash
+RUN apk --update add bash \
+  && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
+
 RUN adduser -h /home -s /bin/bash -D -u 8465 vimtest
 
 RUN mkdir -p /vim /vim-build/bin /plugins

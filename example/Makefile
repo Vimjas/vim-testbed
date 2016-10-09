@@ -1,6 +1,6 @@
 IMAGE ?= tweekmonster/ubuntu-vims
 PLUGINS = test/plugins
-DOCKER = docker run -it --rm -v $(PWD):/testplugin -v $(PWD)/test:/home "$(IMAGE)"
+DOCKER = docker run -a stderr --rm -v $(PWD):/testplugin -v $(PWD)/test:/home "$(IMAGE)"
 
 $(PLUGINS)/vader.vim:
 	mkdir -p $(PLUGINS)
@@ -10,7 +10,9 @@ test-setup: $(PLUGINS)/vader.vim
 	docker images -q $(IMAGE) || docker pull $(IMAGE)
 
 test: test-setup
-	for vim in $$(docker run --rm $(IMAGE) ls /vim-build/bin | grep -E '^n?vim'); do \
+	vims=$$(docker run --rm $(IMAGE) ls /vim-build/bin | grep -E '^n?vim'); \
+	if [ -z "$$vims" ]; then echo "No Vims found!"; exit 1; fi; \
+	for vim in $$vims; do \
 	  $(DOCKER) $$vim '+Vader! test/*'; \
 	done
 

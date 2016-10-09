@@ -21,5 +21,4 @@ done
 
 # Run as the vimtest user.  This is not really for security.  It is for running
 # Vim as a user that's unable to write to your volume.
-cd /testplugin || exit
-exec su -l vimtest -c "env HOME=/tmp/vimtestbed-home /vim-build/bin/$BIN $ARGS"
+exec su -l vimtest -c "cd /testplugin && /vim-build/bin/$BIN $ARGS"

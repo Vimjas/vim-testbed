@@ -1,7 +1,7 @@
 # Vim Testbed
 
 [![Build Status](https://travis-ci.org/tweekmonster/vim-testbed.svg?branch=master)](https://travis-ci.org/tweekmonster/vim-testbed)
-[![](https://badge.imagelayers.io/tweekmonster/vim-testbed:latest.svg)](https://imagelayers.io/?images=tweekmonster/vim-testbed:latest)
+[![](https://badge.imagelayers.io/testbed/vim:latest.svg)](https://imagelayers.io/?images=testbed/vim:latest)
 
 Because unit testing a Vim plugin is a pain in the ass.
 
@@ -29,7 +29,7 @@ your [Docker Hub](https://hub.docker.com/) repository.
 ### Dockerfile
 
 ```Dockerfile
-FROM tweekmonster/vim-testbed:latest
+FROM testbed/vim:latest
 
 RUN install_vim -tag v7.3 -name vim73 -build \
                 -tag v7.4.052 -name vim74 -build \

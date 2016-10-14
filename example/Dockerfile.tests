@@ -1,4 +1,5 @@
-FROM testbed/vim
+# This Dockerfile is used for "make test" from the top level Makefile.
+FROM vim-testbed-base
 
 RUN install_vim -name vim-precise -tag v7.3.429 -build \
                 -name vim-trusty -tag v7.4.052 -build \

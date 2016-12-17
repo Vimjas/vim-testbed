@@ -13,6 +13,7 @@ init_vars() {
   PYTHON=0
   RUBY=0
   LUA=0
+  CONFIGURE_OPTIONS=
 }
 
 build() {
@@ -43,6 +44,10 @@ build() {
   if [ $LUA -eq 1 ]; then
     CONFIG_ARGS="$CONFIG_ARGS --enable-luainterp"
     apk add lua-dev
+  fi
+
+  if [ -n "$CONFIGURE_OPTIONS" ]; then
+    CONFIG_ARGS="$CONFIG_ARGS $CONFIGURE_OPTIONS"
   fi
 
   cd /vim
@@ -110,6 +115,9 @@ while [ $# -gt 0 ]; do
       echo "=== building: NAME=$NAME, TAG=$TAG, PYTHON=$PYTHON, RUBY=$RUBY, LUA=$LUA ==="
       build
       init_vars
+      ;;
+    *)
+      CONFIGURE_OPTIONS="$CONFIGURE_OPTIONS $1"
       ;;
   esac
 

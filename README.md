@@ -51,6 +51,9 @@ Flag | Description
 `-ruby` | Build with Ruby.
 `-lua` | Build with Lua.
 
+All other arguments (up until `-build`) will be passed through to
+`./configure`, e.g. `--disable-FEATURE` etc.
+
 
 ### Build
 

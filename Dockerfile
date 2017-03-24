@@ -1,4 +1,4 @@
-FROM alpine:3.4
+FROM alpine:3.5
 
 RUN apk --update add bash \
   && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*

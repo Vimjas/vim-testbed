@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
@@ -19,6 +19,8 @@ init_vars() {
 build() {
   [ -z $NAME ] && NAME="vim-${TAG}"
   [ -z $TAG ] && bail "-tag is required"
+
+  apk add ncurses
 
   VIM_NAME="vim_${TAG}_py${PYTHON}_rb${RUBY}_lua${LUA}"
   VIM_PATH="/vim-build/$VIM_NAME"

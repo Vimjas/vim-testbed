@@ -1,9 +1,6 @@
 FROM alpine:3.5
 
-RUN apk --update add bash \
-  && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
-
-RUN adduser -h /home -s /bin/bash -D -u 8465 vimtest
+RUN adduser -h /home -s /bin/sh -D -u 8465 vimtest
 
 RUN mkdir -p /vim /vim-build/bin /plugins
 RUN chown vimtest:vimtest /home /plugins

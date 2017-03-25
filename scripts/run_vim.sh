@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 BIN=$1
 shift
 
-if [ "$BIN" == "bash" ] || [ -z "$BIN" ]; then
-  exec /bin/bash
+if [ "$BIN" = "sh" ] || [ -z "$BIN" ]; then
+  exec /bin/sh
 fi
 if ! [ -x "/vim-build/bin/$BIN" ]; then
   exec "$BIN" "$@"

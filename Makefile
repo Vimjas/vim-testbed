@@ -1,10 +1,12 @@
 .PHONY: build push test
 
+TAG:=2
+
 build:
-	docker build -t testbed/vim .
+	docker build -t testbed/vim:$(TAG) .
 
 push:
-	docker push testbed/vim
+	docker push testbed/vim:$(TAG)
 
 # test: build the base image and example image on top, running tests therein.
 DOCKER_BASE_IMAGE:=vim-testbed-base

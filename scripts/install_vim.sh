@@ -40,7 +40,7 @@ build() {
 
   if [ $RUBY -eq 1 ]; then
     CONFIG_ARGS="$CONFIG_ARGS --enable-rubyinterp"
-    apk add ruby-dev
+    apk add ruby-dev ruby
   fi
 
   if [ $LUA -eq 1 ]; then

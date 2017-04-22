@@ -1,3 +1,4 @@
+" vint: -ProhibitSetNoCompatible
 source /rtp.vim
 
 filetype plugin indent on
@@ -13,5 +14,3 @@ set foldmethod=syntax
 set foldlevelstart=10
 set foldnestmax=10
 set ttimeoutlen=0
-
-let mapleader=","

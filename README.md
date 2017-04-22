@@ -17,7 +17,6 @@ tests with Travis-CI where you have to either:
 With this base image, you can build the versions you need and reuse them in
 future tests.
 
-
 ## Usage
 
 The README is a work in progress.  Take a look in the `example` directory and
@@ -31,29 +30,32 @@ your [Docker Hub](https://hub.docker.com/) repository.
 ```Dockerfile
 FROM testbed/vim:latest
 
-RUN install_vim -tag v7.3 -name vim73 -build \
-                -tag v7.4.052 -name vim74 -build \
-                -tag master -build
+RUN install_vim -tag v7.3.429 -name vim73 -py -build \
+                -tag v7.4.052 -name vim74-trusty -build \
+                -tag master -py2 -py3 -ruby -lua -build \
+                -tag neovim:v0.1.7 -py2 -py3 -ruby -build \
+                -tag neovim:master -py2 -py3 -ruby -build
+
 ```
 
 The `install_vim` script builds one or more versions of Vim that you would like
 to use for testing.  Each version should be terminated with a `-build` flag to
 tell the script to start a build.
 
-The following flags can be used for each build:
+The following flags are available for each build:
 
 Flag | Description
 ---- | -----------
-`-tag` | The Vim release.  It must match the tags on Vim's [releases page](https://github.com/vim/vim/releases).
-`-name` | The name to use for the binary's symlink.  If omitted, the name will default to `vim-$TAG`.
-`-py` | Build with Python 2.  Can't be used with `-py3`.
-`-py3` | Build with Python 3.  Can't be used with `-py`.
+`-tag` | The Vim/Neovim release.  It should be a valid tag/commit hash, with an optional GitHub repo prefix.  E.g. `master`, `neovim:master`, `neovim:v0.1.7`, or `username/neovim:branch`.
+`-flavor` | The Vim flavor.  Either `vim` (default) or `neovim`.  If empty, it will be detected from `-tag`.
+`-name` | The name to use for the binary's symlink.  It defaults to `$FLAVOR-$TAG`, e.g. `vim-master` or `neovim-v0.1.7`.
+`-py` | Build with Python 2.
+`-py3` | Build with Python 3.
 `-ruby` | Build with Ruby.
-`-lua` | Build with Lua.
+`-lua` | Build with Lua (not supported / ignored with Neovim).
 
-All other arguments (up until `-build`) will be passed through to
-`./configure`, e.g. `--disable-FEATURE` etc.
-
+With `-flavor vim` (the default), all other arguments (up until `-build`) get
+passed through to `./configure`, e.g. `--disable-FEATURE` etc.
 
 ### Build
 
@@ -76,7 +78,6 @@ In this case `vim74`.  Arguments after the name is passed to Vim.
 The entry point script prefixes your arguments with `-u /home/vimrc -i NONE`.
 They can be overridden with your arguments.
 
-
 ## Setup
 
 The base image is created with automated testing in mind.  It is not meant to
@@ -98,7 +99,6 @@ source /rtp.vim
 
 It will add `/home/vim` and `/home/vim/after` to the runtime path, and search
 for plugins in `/home/plugins`.
-
 
 ### Volumes
 

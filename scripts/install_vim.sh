@@ -19,7 +19,7 @@ init_vars() {
   CONFIGURE_OPTIONS=
 }
 
-build() {
+prepare_build() {
   [ -z $TAG ] && bail "-tag is required"
 
   # Parse TAG into repo and tag.
@@ -138,13 +138,6 @@ EOF
   if [ "$FLAVOR" = vim ]; then
     apk add --virtual vim-build ncurses-dev
     apk add ncurses
-
-    echo "Configuring with: $CONFIG_ARGS"
-    # shellcheck disable=SC2086
-    ./configure $CONFIG_ARGS || bail "Could not configure"
-    make CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2" -j4 || bail "Make failed"
-    make install || bail "Install failed"
-
   elif [ "$FLAVOR" = neovim ]; then
     # Some of them will be installed already, but it is a good reference for
     # what is required.
@@ -185,11 +178,21 @@ EOF
       for rock in lpeg mpack; do
         luarocks install $rock
       done
-      rm /usr/local/bin/luarocks*
-      rm -rf /usr/local/share/lua/5*/luarocks
-      rm -rf /usr/local/etc/luarocks*
     )
+  else
+    bail "Unexpected FLAVOR: $FLAVOR (use vim or neovim)."
+  fi
+}
 
+build() {
+  if [ "$FLAVOR" = vim ]; then
+    echo "Configuring with: $CONFIG_ARGS"
+    # shellcheck disable=SC2086
+    ./configure $CONFIG_ARGS || bail "Could not configure"
+    make CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2" -j4 || bail "Make failed"
+    make install || bail "Install failed"
+
+  elif [ "$FLAVOR" = neovim ]; then
     make CMAKE_BUILD_TYPE=RelWithDebInfo \
       CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX \
         -DENABLE_JEMALLOC=OFF" \
@@ -209,8 +212,6 @@ EOF
       fi
     fi
     make install || bail "Install failed"
-  else
-    bail "Unexpected FLAVOR: $FLAVOR (use vim or neovim)."
   fi
 
   # Clean, but don't delete the source in case you want make a different build
@@ -233,6 +234,7 @@ EOF
 apk update
 
 init_vars
+clean=
 while [ $# -gt 0 ]; do
   case $1 in
     -flavor)
@@ -262,6 +264,15 @@ while [ $# -gt 0 ]; do
     -lua)
       LUA=1
       ;;
+    -prepare_build)
+      # Not documented, meant to ease hacking on this script, by avoiding
+      # downloads over and over again.
+      prepare_build
+      [ -z "$clean" ] && clean=0
+      ;;
+    -skip_clean)
+      clean=0
+      ;;
     -build)
       # So here I am thinking that using Alpine was going to give the biggest
       # savings in image size.  Alpine starts at about 5MB.  Built this image,
@@ -272,8 +283,10 @@ while [ $# -gt 0 ]; do
       # installing all Vim versions becomes one layer.
       # Side note: tried docker-squash and it didn't seem to do anything.
       echo "=== building: NAME=$NAME, TAG=$TAG, PYTHON=${PYTHON2}${PYTHON3}, RUBY=$RUBY, LUA=$LUA, FLAVOR=$FLAVOR ==="
+      prepare_build
       build
       init_vars
+      [ -z "$clean" ] && clean=1
       ;;
     *)
       CONFIGURE_OPTIONS="$CONFIGURE_OPTIONS $1"
@@ -283,8 +296,17 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-echo "Pruning packages and dirs.."
-apk info -q vim-build > /dev/null && apk del vim-build
-rm -rf /vim/*
-rm -rf /var/cache/apk/* /tmp/* /var/tmp/* /root/.cache
-find / \( -name '*.pyc' -o -name '*.pyo' \) -delete
+if [ "$clean" = 0 ]; then
+  echo "NOTE: skipping cleanup."
+else
+  echo "Pruning packages and dirs.."
+  apk info -q vim-build > /dev/null && apk del vim-build
+  rm -rf /vim/*
+  rm -rf /var/cache/apk/* /tmp/* /var/tmp/* /root/.cache
+  find / \( -name '*.pyc' -o -name '*.pyo' \) -delete
+
+  # Luarocks used for Neovim.
+  rm -f /usr/local/bin/luarocks*
+  rm -rf /usr/local/share/lua/5*/luarocks
+  rm -rf /usr/local/etc/luarocks*
+fi

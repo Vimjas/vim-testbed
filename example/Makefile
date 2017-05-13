@@ -57,8 +57,8 @@ test: test-setup
 	    echo "Failed to get output from Lua for $${vim}." >&2; exit 1; \
 	  fi; \
 	done; \
-	neovim_tag_version=$$(docker run --rm "$(IMAGE)" neovim-v0.1.7 -u NONE --version | grep '^NVIM'); \
-	if [ "$$neovim_tag_version" != 'NVIM 0.1.7' ]; then \
+	neovim_tag_version=$$(docker run --rm "$(IMAGE)" neovim-v0.2.0 -u NONE --version | grep '^NVIM'); \
+	if [ "$$neovim_tag_version" != 'NVIM v0.2.0' ]; then \
 	  echo "Unexpected version for Neovim tag: $$neovim_tag_version" >&2; \
 	  exit 1; \
 	fi; \

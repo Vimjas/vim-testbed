@@ -187,6 +187,15 @@ EOF
 
 build() {
   if [ "$FLAVOR" = vim ]; then
+    # Apply build fix from v7.1.148.
+    MAJOR="$(sed -n '/^MAJOR = / s~MAJOR = ~~p' Makefile)"
+    if [ "$MAJOR" -lt 8 ]; then
+      MINOR="$(sed -n '/^MINOR = / s~MINOR = ~~p' Makefile)"
+      if [ "$MINOR" = "1" ] || [ "${MINOR#0}" != $MINOR ]; then
+        sed -i 's~sys/time.h termio.h~sys/time.h sys/types.h termio.h~' src/configure.in src/auto/configure
+      fi
+    fi
+
     echo "Configuring with: $CONFIG_ARGS"
     # shellcheck disable=SC2086
     ./configure $CONFIG_ARGS || bail "Could not configure"

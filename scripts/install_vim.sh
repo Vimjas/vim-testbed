@@ -109,7 +109,7 @@ EOF
       apk add --virtual vim-build lua-dev
       apk add lua
     else
-      echo 'WARNING: -lua is not supported with Neovim, ignoring.'
+      echo 'NOTE: -lua is automatically used with Neovim 0.2.1+, and not supported before.'
     fi
   fi
 
@@ -141,9 +141,11 @@ EOF
   elif [ "$FLAVOR" = neovim ]; then
     # Some of them will be installed already, but it is a good reference for
     # what is required.
+    # luajit is required with Neomvim 0.2.1+ (previously only during build).
     apk add libuv \
       libtermkey \
       libvterm \
+      luajit \
       msgpack-c \
       unibilium
     apk add --virtual vim-build \
@@ -157,7 +159,6 @@ EOF
       libuv-dev \
       libtermkey-dev \
       libvterm-dev \
-      luajit \
       luajit-dev \
       m4 \
       make \

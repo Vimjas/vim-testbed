@@ -52,7 +52,7 @@ Flag | Description
 `-py` | Build with Python 2.
 `-py3` | Build with Python 3.
 `-ruby` | Build with Ruby.
-`-lua` | Build with Lua (not supported / ignored with Neovim).
+`-lua` | Build with Lua (implied with Neovim 0.2.1+).
 
 With `-flavor vim` (the default), all other arguments (up until `-build`) get
 passed through to `./configure`, e.g. `--disable-FEATURE` etc.

@@ -49,12 +49,14 @@ test: test-setup
 	  fi; \
 	  $(RM) $(WRITABLE_HOME)/ruby; \
 	done; \
-	$(DOCKER) vim-master -u NONE \
+	for vim in "neovim-master --headless" vim-master; do \
+	  $(DOCKER) $${vim} -u NONE \
 	  "+lua io.open('/home/lua', 'w'):write('lua was here')" \
 	  '+q'; \
 	  if [ "$$(<$(WRITABLE_HOME)/lua)" != "lua was here" ]; then \
 	    echo "Failed to get output from Lua for $${vim}." >&2; exit 1; \
 	  fi; \
+	done; \
 	neovim_tag_version=$$(docker run --rm "$(IMAGE)" neovim-v0.1.7 -u NONE --version | grep '^NVIM'); \
 	if [ "$$neovim_tag_version" != 'NVIM 0.1.7' ]; then \
 	  echo "Unexpected version for Neovim tag: $$neovim_tag_version" >&2; \

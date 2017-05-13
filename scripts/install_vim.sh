@@ -238,6 +238,9 @@ build() {
   else
     VIM_BIN="$INSTALL_PREFIX/bin/nvim"
   fi
+  if ! [ -e "$VIM_BIN" ]; then
+    bail "Binary $VIM_BIN was not created."
+  fi
   link_target="/vim-build/bin/$NAME"
   if [ -e "$link_target" ]; then
     echo "WARNING: link target for $NAME exists already.  Overwriting."

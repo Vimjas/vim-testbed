@@ -15,7 +15,7 @@ if ! [ -x "/vim-build/bin/$BIN" ]; then
 fi
 
 # Set default vimrc to a visible file
-ARGS="-u /home/vimtest/vimrc -i NONE"
+ARGS="-i NONE"
 
 # Run as the vimtest user (when no USER is specified in the Dockerfile, i.e.
 # when running as root).
@@ -27,10 +27,9 @@ if [ "$(id -u)" = 0 ]; then
     ARGS="$ARGS \"$1\""
     shift
   done
-  exec su -l vimtest -c "cd /testplugin && /vim-build/bin/$BIN $ARGS"
+  exec su -l vimtest -c "cd /testbed && /vim-build/bin/$BIN $ARGS"
 fi
 
-cd /testplugin || exit
-
+cd /testbed || exit
 # shellcheck disable=SC2086
 exec "/vim-build/bin/$BIN" "$@"

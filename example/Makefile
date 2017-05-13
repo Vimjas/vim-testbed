@@ -7,10 +7,9 @@ WRITABLE_HOME:=$(shell tmpdir=$$(mktemp -d --dry-run); \
 	cd $(CURDIR)/test; \
 	cp -a vimrc *.vader $${tmpdir}/; \
 	echo $${tmpdir})
-DOCKER = docker run -a stderr --rm \
-	-v $(CURDIR):/testplugin \
-	-v $(WRITABLE_HOME):/home/vimtest \
-	-v $(CURDIR)/$(PLUGINS):/home/vimtest/plugins "$(IMAGE)"
+DOCKER = docker run -ti --rm \
+	-v $(CURDIR):/testbed \
+	-v $(CURDIR)/$(PLUGINS):/home/testbed/.vim/plugins "$(IMAGE)"
 
 test: build $(PLUGINS)/vader.vim
 test: test_vim71_with_profiling_enabled

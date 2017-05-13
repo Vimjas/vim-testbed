@@ -1,5 +1,7 @@
 " vint: -ProhibitSetNoCompatible
-source /rtp.vim
+
+let s:this_dir = expand('<sfile>:h')
+exe 'set runtimepath+='.s:this_dir.'/test/plugins/vader.vim'
 
 filetype plugin indent on
 syntax on

@@ -38,6 +38,13 @@ test:
 	  fi; \
 	  $(RM) $(TEMPDIR)/py*; \
 	done; \
+	$(DOCKER) vim71 -u NONE \
+		"+py import sys; open('$(TEMPDIR)/py2', 'w').write(str(sys.version_info[0]))" \
+		'+q'; \
+	if [ "$$(<$(TEMPDIR)/py2)" != "2" ]; then \
+		echo "Failed to get Python version from vim71 (2)." >&2; exit 1; \
+	fi; \
+	$(RM) $(TEMPDIR)/py2; \
 	for vim in "neovim-master --headless" vim-master; do \
 	  $(DOCKER) $${vim} -u NONE \
 	    "+ruby open('$(TEMPDIR)/ruby', 'w') { |f| f << 'ruby was here' }" \

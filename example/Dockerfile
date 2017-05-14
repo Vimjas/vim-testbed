@@ -1,6 +1,6 @@
 FROM testbed/vim
 
-RUN install_vim -tag v7.1 -name vim71 -prebuild_script 'echo "#define FEAT_PROFILE" >> src/feature.h' -build \
+RUN install_vim -tag v7.1 -name vim71 -py2 -prebuild_script 'echo "#define FEAT_PROFILE" >> src/feature.h' -build \
                 -tag v7.3.429 -name vim73 -py -build \
                 -tag v7.4.052 -name vim74-trusty -build \
                 -tag master -py2 -py3 -ruby -lua -build \

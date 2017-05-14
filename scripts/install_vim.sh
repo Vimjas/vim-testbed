@@ -72,10 +72,41 @@ EOF
 
   apk add --virtual vim-build curl gcc libc-dev make
 
+  cd /vim
+
+  if [ -d "$INSTALL_PREFIX" ]; then
+    echo "WARNING: $INSTALL_PREFIX exists already.  Overwriting."
+  fi
+
+  BUILD_DIR="${FLAVOR}-${repo}-${tag}"
+  if [ ! -d "$BUILD_DIR" ]; then
+    mkdir -p "$BUILD_DIR"
+    cd "$BUILD_DIR"
+    # The git package adds about 200MB+ to the image.  So, no cloning.
+    url="https://github.com/$repo/archive/${tag}.tar.gz"
+    echo "Downloading $repo:$tag from $url"
+    curl --retry 3 -SL "$url" | tar zx --strip-components=1
+  else
+    cd "$BUILD_DIR"
+  fi
+
+  vim_has_dynamic_python() {
+    # Added in b744b2f (released as Vim 7.3g).
+    if [ -e src/configure.ac ]; then
+      return 1
+    fi
+    grep -q -e '--enable-pythoninterp.*OPTS=.*dynamic' src/configure.in
+  }
+
   if [ -n "$PYTHON2" ]; then
     apk add --virtual vim-build python-dev
     if [ "$FLAVOR" = vim ]; then
-      VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-pythoninterp=dynamic"
+      if vim_has_dynamic_python; then
+        VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-pythoninterp=dynamic"
+      else
+        VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-pythoninterp"
+        apk add python
+      fi
     else
       apk add --virtual vim-build py2-pip
       apk add python
@@ -86,7 +117,15 @@ EOF
   if [ -n "$PYTHON3" ]; then
     apk add --virtual vim-build python3-dev
     if [ "$FLAVOR" = vim ]; then
-      VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-python3interp=dynamic"
+      if ! [ -e src/if_python3.c ]; then
+        echo 'WARNING: Python 3 support seems to be missing in this version?!'
+      fi
+      if vim_has_dynamic_python; then
+        VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-python3interp=dynamic"
+      else
+        VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-python3interp"
+        apk add python3
+      fi
     else
       apk add python3
       pip3 install neovim
@@ -114,31 +153,12 @@ EOF
     fi
   fi
 
-  if [ "$FLAVOR" = vim ] && [ -n "$CONFIGURE_OPTIONS" ]; then
-    VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS $CONFIGURE_OPTIONS"
-  fi
-
-  cd /vim
-
-  if [ -d "$INSTALL_PREFIX" ]; then
-    echo "WARNING: $INSTALL_PREFIX exists already.  Overwriting."
-  fi
-
-  BUILD_DIR="${FLAVOR}-${repo}-${tag}"
-  if [ ! -d "$BUILD_DIR" ]; then
-    mkdir -p "$BUILD_DIR"
-    cd "$BUILD_DIR"
-    # The git package adds about 200MB+ to the image.  So, no cloning.
-    url="https://github.com/$repo/archive/${tag}.tar.gz"
-    echo "Downloading $repo:$tag from $url"
-    curl --retry 3 -SL "$url" | tar zx --strip-components=1
-  else
-    cd "$BUILD_DIR"
-  fi
-
   if [ "$FLAVOR" = vim ]; then
     apk add --virtual vim-build ncurses-dev
     apk add ncurses
+    if [ -n "$CONFIGURE_OPTIONS" ]; then
+      VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS $CONFIGURE_OPTIONS"
+    fi
   elif [ "$FLAVOR" = neovim ]; then
     # Some of them will be installed already, but it is a good reference for
     # what is required.

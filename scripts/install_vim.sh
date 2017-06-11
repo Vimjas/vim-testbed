@@ -142,7 +142,8 @@ EOF
     # Some of them will be installed already, but it is a good reference for
     # what is required.
     # luajit is required with Neomvim 0.2.1+ (previously only during build).
-    apk add libuv \
+    apk add gettext \
+      libuv \
       libtermkey \
       libvterm \
       luajit \
@@ -154,6 +155,7 @@ EOF
       ca-certificates \
       cmake \
       g++ \
+      gettext-dev \
       gperf \
       libtool \
       libuv-dev \

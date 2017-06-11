@@ -1,4 +1,4 @@
-FROM alpine:3.5
+FROM alpine:3.6
 
 RUN adduser -h /home -s /bin/sh -D -u 8465 vimtest
 

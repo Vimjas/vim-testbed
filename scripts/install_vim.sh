@@ -159,6 +159,8 @@ EOF
       libuv-dev \
       libtermkey-dev \
       libvterm-dev \
+      lua5.1-lpeg \
+      lua5.1-mpack \
       luajit-dev \
       m4 \
       make \
@@ -167,19 +169,6 @@ EOF
       unzip \
       unibilium-dev \
       xz
-
-    # Install luarocks manually for Alpine's luajit.
-    # I could not make it work through LUAROCKS_OPTS in DEPS_CMAKE_FLAGS.
-    ( cd /tmp
-      curl -SL https://luarocks.org/releases/luarocks-2.4.1.tar.gz | tar zxp
-      cd luarocks-*
-      ./configure --lua-suffix=jit --with-lua-bin=/usr/bin/luajit \
-        --with-lua-include=/usr/include/luajit-2.1
-      make bootstrap
-      for rock in lpeg mpack; do
-        luarocks install $rock
-      done
-    )
   else
     bail "Unexpected FLAVOR: $FLAVOR (use vim or neovim)."
   fi

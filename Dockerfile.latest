@@ -1,0 +1,10 @@
+# The latest Vim and Neovim releases.
+#
+# The Vim release (tag) is based on the Windows release at
+# http://www.vim.org/download.php (assuming this to be considered stable).
+#
+# This is available online at https://hub.docker.com/r/testbed/vim-latest/.
+FROM testbed/vim
+
+RUN install_vim -tag v8.1.0000 -name vim -py3 -build \
+                -tag neovim:v0.3.1 -py2 -py3 -build

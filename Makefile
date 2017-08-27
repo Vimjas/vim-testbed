@@ -2,6 +2,7 @@
 
 DOCKER_REPO_BASE:=testbed/vim
 DOCKER_REPO_VIMS_DEFAULT:=testbed/vim-default
+DOCKER_REPO_VIMS_LATEST:=testbed/vim-latest
 
 TAG:=11
 
@@ -18,6 +19,11 @@ push_default:
 update_latest:
 	docker tag testbed/vim:$(TAG) testbed/vim:latest
 	docker push testbed/vim:latest
+
+build_latest:
+	docker build -f Dockerfile.latest -t $(DOCKER_REPO_VIMS_LATEST) .
+push_latest:
+	docker push $(DOCKER_REPO_VIMS_LATEST)
 
 # test: build the base image and example image on top, running tests therein.
 DOCKER_BASE_IMAGE:=vim-testbed-base

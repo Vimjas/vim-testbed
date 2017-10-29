@@ -130,7 +130,7 @@ EOF
     # The git package adds about 200MB+ to the image.  So, no cloning.
     url="https://github.com/$repo/archive/${tag}.tar.gz"
     echo "Downloading $repo:$tag from $url"
-    curl -SL "$url" | tar zx --strip-components=1
+    curl --retry 3 -SL "$url" | tar zx --strip-components=1
   else
     cd "$BUILD_DIR"
   fi
@@ -204,7 +204,7 @@ build() {
     if grep -qF '#define NVIM_VERSION_PRERELEASE "-dev"' $versiondef_file \
         && grep -qF '/* #undef NVIM_VERSION_MEDIUM */' $versiondef_file ; then
 
-      head_info=$(curl -SL "https://api.github.com/repos/$repo/git/refs/heads/$tag")
+      head_info=$(curl --retry 3 -SL "https://api.github.com/repos/$repo/git/refs/heads/$tag")
       if [ -n "$head_info" ]; then
         head_sha=$(echo "$head_info" | grep '"sha":' | cut -f4 -d\" | cut -b -7)
         if [ -n "$head_sha" ]; then

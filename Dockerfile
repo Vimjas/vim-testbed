@@ -1,6 +1,6 @@
 FROM alpine:3.6
 
-RUN adduser -h /home -s /bin/sh -D -u 8465 vimtest
+RUN adduser -h /home/vimtest -s /bin/sh -D -u 8465 vimtest
 
 RUN mkdir -p /vim /vim-build/bin /plugins
 RUN chown vimtest:vimtest /home /plugins
@@ -17,7 +17,7 @@ RUN chmod +x /vim-build/bin/argecho /sbin/install_vim /sbin/run_vim
 ADD scripts/rtp.vim /rtp.vim
 
 # The user directory for setup
-VOLUME /home
+VOLUME /home/vimtest
 
 # Your plugin
 VOLUME /testplugin

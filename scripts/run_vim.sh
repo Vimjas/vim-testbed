@@ -19,6 +19,15 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-# Run as the vimtest user.  This is not really for security.  It is for running
-# Vim as a user that's unable to write to your volume.
-exec su -l vimtest -c "cd /testplugin && /vim-build/bin/$BIN $ARGS"
+# Run as the vimtest user (when no USER is specified in the Dockerfile, i.e.
+# when running as root).
+# This is not really for security.  It is for running Vim as a user that's
+# unable to write to your volume.
+if [ "$(id -u)" = 0 ]; then
+  exec su -l vimtest -c "cd /testplugin && /vim-build/bin/$BIN $ARGS"
+fi
+
+cd /testplugin || exit
+
+# shellcheck disable=SC2086
+exec "/vim-build/bin/$BIN" $ARGS

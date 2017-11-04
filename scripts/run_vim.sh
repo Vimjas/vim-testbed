@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ "$VIM_TESTBED_DEBUG" = 1 ]; then
+  set -x
+fi
+
 BIN=$1
 shift
 
@@ -13,12 +17,15 @@ fi
 # Set default vimrc to a visible file
 ARGS="-u /home/vimtest/vimrc -i NONE"
 
-# So we can pass the arguments to Vim as it was passed to this script
-while [ $# -gt 0 ]; do
-  ARGS="$ARGS \"$1\""
-  shift
-done
+# Run as the vimtest user (when no USER is specified in the Dockerfile, i.e.
+# when running as root).
+# This is not really for security.  It is for running Vim as a user that's
+# unable to write to your volume.
+if [ "$(id -u)" = 0 ]; then
+  exec su -l vimtest -c "cd /testplugin && /vim-build/bin/$BIN $ARGS $*"
+fi
 
-# Run as the vimtest user.  This is not really for security.  It is for running
-# Vim as a user that's unable to write to your volume.
-exec su -l vimtest -c "cd /testplugin && /vim-build/bin/$BIN $ARGS"
+cd /testplugin || exit
+
+# shellcheck disable=SC2086
+exec "/vim-build/bin/$BIN" $ARGS "$@"

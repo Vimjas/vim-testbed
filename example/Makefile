@@ -1,20 +1,15 @@
 SHELL := $(shell which bash)
 IMAGE := vim-testbed-example
 PLUGINS := test/plugins
-# A writable home directory, required for Neovim.
-WRITABLE_HOME:=$(shell tmpdir=$$(mktemp -d --dry-run); \
-	mkdir -m 777 $${tmpdir}; \
-	cd $(CURDIR)/test; \
-	cp -a vimrc *.vader $${tmpdir}/; \
-	echo $${tmpdir})
 DOCKER = docker run -a stderr --rm \
 	-v $(CURDIR):/testplugin \
-	-v $(WRITABLE_HOME):/home \
 	-v $(CURDIR)/$(PLUGINS):/home/plugins "$(IMAGE)"
 
+test: TEMPDIR:=$(shell mktemp -d -u)
 test: test-setup
 	docker build -f Dockerfile.tests -t "$(IMAGE)" .
 	set -ex; \
+	mkdir -m 0777 $(TEMPDIR); \
 	vims="$$(docker run --rm $(IMAGE) ls /vim-build/bin | grep vim)"; \
 	if [ -z "$$vims" ]; then echo "No Vims found!"; exit 1; fi; \
 	count_vims=0; \
@@ -29,31 +24,31 @@ test: test-setup
 	fi; \
 	for vim in "neovim-master --headless" vim-master; do \
 	  $(DOCKER) $${vim} -u NONE \
-	    "+py  import sys; open('/home/py2', 'w').write(str(sys.version_info[0]))" \
-	    "+py3 import sys; open('/home/py3', 'w').write(str(sys.version_info[0]))" \
+	    "+py  import sys; open('$(TEMPDIR)/py2', 'w').write(str(sys.version_info[0]))" \
+	    "+py3 import sys; open('$(TEMPDIR)/py3', 'w').write(str(sys.version_info[0]))" \
 	    '+q'; \
-	  if [ "$$(<$(WRITABLE_HOME)/py2)" != "2" ]; then \
+	  if [ "$$(<$(TEMPDIR)/py2)" != "2" ]; then \
 	    echo "Failed to get Python version from $${vim} (2)." >&2; exit 1; \
 	  fi; \
-	  if [ "$$(<$(WRITABLE_HOME)/py3)" != "3" ]; then \
+	  if [ "$$(<$(TEMPDIR)/py3)" != "3" ]; then \
 	    echo "Failed to get Python version from $${vim} (3)." >&2; exit 1; \
 	  fi; \
-	  $(RM) $(WRITABLE_HOME)/py*; \
+	  $(RM) $(TEMPDIR)/py*; \
 	done; \
 	for vim in "neovim-master --headless" vim-master; do \
 	  $(DOCKER) $${vim} -u NONE \
-	    "+ruby open('/home/ruby', 'w') { |f| f << 'ruby was here' }" \
+	    "+ruby open('$(TEMPDIR)/ruby', 'w') { |f| f << 'ruby was here' }" \
 	    '+q'; \
-	  if [ "$$(<$(WRITABLE_HOME)/ruby)" != "ruby was here" ]; then \
+	  if [ "$$(<$(TEMPDIR)/ruby)" != "ruby was here" ]; then \
 	    echo "Failed to get output from Ruby for $${vim}." >&2; exit 1; \
 	  fi; \
-	  $(RM) $(WRITABLE_HOME)/ruby; \
+	  $(RM) $(TEMPDIR)/ruby; \
 	done; \
 	for vim in "neovim-master --headless" vim-master; do \
 	  $(DOCKER) $${vim} -u NONE \
-	  "+lua io.open('/home/lua', 'w'):write('lua was here')" \
+	  "+lua io.open('$(TEMPDIR)/lua', 'w'):write('lua was here')" \
 	  '+q'; \
-	  if [ "$$(<$(WRITABLE_HOME)/lua)" != "lua was here" ]; then \
+	  if [ "$$(<$(TEMPDIR)/lua)" != "lua was here" ]; then \
 	    echo "Failed to get output from Lua for $${vim}." >&2; exit 1; \
 	  fi; \
 	done; \

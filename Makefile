@@ -14,6 +14,9 @@ update_latest:
 
 # test: build the base image and example image on top, running tests therein.
 DOCKER_BASE_IMAGE:=vim-testbed-base
-test:
+
+test test_quick:
 	docker build -t "$(DOCKER_BASE_IMAGE)" .
-	make -C example test
+	make -C example $<
+
+.PHONY: build push test test_quick

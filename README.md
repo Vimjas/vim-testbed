@@ -75,7 +75,7 @@ docker run -it --rm -v $PWD:/testplugin -v $PWD/test:/home "your/repository" vim
 The entry point for the container is a script that runs the named Vim version.
 In this case `vim74`.  Arguments after the name is passed to Vim.
 
-The entry point script prefixes your arguments with `-u /home/vimrc -i NONE`.
+The entry point script prefixes your arguments with `-u /home/vimtest/vimrc -i NONE`.
 They can be overridden with your arguments.
 
 ## Setup
@@ -97,8 +97,8 @@ vimrc:
 source /rtp.vim
 ```
 
-It will add `/home/vim` and `/home/vim/after` to the runtime path, and search
-for plugins in `/home/plugins`.
+It will add `/home/vimtest/vim` and `/home/vimtest/vim/after` to the runtime
+path, and search for plugins in `/home/vimtest/plugins`.
 
 ### Volumes
 

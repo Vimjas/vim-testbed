@@ -11,7 +11,7 @@ if ! [ -x "/vim-build/bin/$BIN" ]; then
 fi
 
 # Set default vimrc to a visible file
-ARGS="-u /home/vimrc -i NONE"
+ARGS="-u /home/vimtest/vimrc -i NONE"
 
 # So we can pass the arguments to Vim as it was passed to this script
 while [ $# -gt 0 ]; do

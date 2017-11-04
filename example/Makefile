@@ -10,7 +10,7 @@ WRITABLE_HOME:=$(shell tmpdir=$$(mktemp -d --dry-run); \
 DOCKER = docker run -a stderr --rm \
 	-v $(CURDIR):/testplugin \
 	-v $(WRITABLE_HOME):/home \
-	-v $(CURDIR)/$(PLUGINS):/home/plugins "$(IMAGE)"
+	-v $(CURDIR)/$(PLUGINS):/home/vimtest/plugins "$(IMAGE)"
 
 test: test-setup
 	docker build -f Dockerfile.tests -t "$(IMAGE)" .
@@ -29,8 +29,8 @@ test: test-setup
 	fi; \
 	for vim in "neovim-master --headless" vim-master; do \
 	  $(DOCKER) $${vim} -u NONE \
-	    "+py  import sys; open('/home/py2', 'w').write(str(sys.version_info[0]))" \
-	    "+py3 import sys; open('/home/py3', 'w').write(str(sys.version_info[0]))" \
+	    "+py  import sys; open('/home/vimtest/py2', 'w').write(str(sys.version_info[0]))" \
+	    "+py3 import sys; open('/home/vimtest/py3', 'w').write(str(sys.version_info[0]))" \
 	    '+q'; \
 	  if [ "$$(<$(WRITABLE_HOME)/py2)" != "2" ]; then \
 	    echo "Failed to get Python version from $${vim} (2)." >&2; exit 1; \
@@ -42,7 +42,7 @@ test: test-setup
 	done; \
 	for vim in "neovim-master --headless" vim-master; do \
 	  $(DOCKER) $${vim} -u NONE \
-	    "+ruby open('/home/ruby', 'w') { |f| f << 'ruby was here' }" \
+	    "+ruby open('/home/vimtest/ruby', 'w') { |f| f << 'ruby was here' }" \
 	    '+q'; \
 	  if [ "$$(<$(WRITABLE_HOME)/ruby)" != "ruby was here" ]; then \
 	    echo "Failed to get output from Ruby for $${vim}." >&2; exit 1; \
@@ -51,7 +51,7 @@ test: test-setup
 	done; \
 	for vim in "neovim-master --headless" vim-master; do \
 	  $(DOCKER) $${vim} -u NONE \
-	  "+lua io.open('/home/lua', 'w'):write('lua was here')" \
+	  "+lua io.open('/home/vimtest/lua', 'w'):write('lua was here')" \
 	  '+q'; \
 	  if [ "$$(<$(WRITABLE_HOME)/lua)" != "lua was here" ]; then \
 	    echo "Failed to get output from Lua for $${vim}." >&2; exit 1; \

@@ -9,7 +9,7 @@ WRITABLE_HOME:=$(shell tmpdir=$$(mktemp -d --dry-run); \
 	echo $${tmpdir})
 DOCKER = docker run -a stderr --rm \
 	-v $(CURDIR):/testplugin \
-	-v $(WRITABLE_HOME):/home \
+	-v $(WRITABLE_HOME):/home/vimtest \
 	-v $(CURDIR)/$(PLUGINS):/home/vimtest/plugins "$(IMAGE)"
 
 test: test-setup

@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ "$VIM_TESTBED_DEBUG" = 1 ]; then
+  set -x
+fi
+
 BIN=$1
 shift
 

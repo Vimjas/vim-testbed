@@ -99,6 +99,7 @@ EOF
       CONFIG_ARGS="$CONFIG_ARGS --enable-rubyinterp"
     else
       apk add --virtual vim-build ruby-rdoc ruby-irb
+      apk add ruby-json
       gem install neovim
     fi
   fi

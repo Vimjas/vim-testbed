@@ -8,6 +8,10 @@ build:
 push:
 	docker push testbed/vim:$(TAG)
 
+update_latest:
+	docker tag testbed/vim:$(TAG) testbed/vim:latest
+	docker push testbed/vim:latest
+
 # test: build the base image and example image on top, running tests therein.
 DOCKER_BASE_IMAGE:=vim-testbed-base
 test:

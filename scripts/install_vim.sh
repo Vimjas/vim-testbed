@@ -17,6 +17,7 @@ init_vars() {
   RUBY=0
   LUA=0
   CONFIGURE_OPTIONS=
+  PREBUILD_SCRIPT=
 }
 
 prepare_build() {
@@ -177,6 +178,10 @@ EOF
 }
 
 build() {
+  if [ -n "$PREBUILD_SCRIPT" ]; then
+    eval "$PREBUILD_SCRIPT"
+  fi
+
   if [ "$FLAVOR" = vim ]; then
     # Apply build fix from v7.1.148.
     MAJOR="$(sed -n '/^MAJOR = / s~MAJOR = ~~p' Makefile)"
@@ -273,6 +278,10 @@ while [ $# -gt 0 ]; do
       ;;
     -skip_clean)
       clean=0
+      ;;
+    -prebuild_script)
+      PREBUILD_SCRIPT="$2"
+      shift
       ;;
     -build)
       # So here I am thinking that using Alpine was going to give the biggest

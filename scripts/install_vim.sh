@@ -60,7 +60,7 @@ EOF
   INSTALL_PREFIX="/vim-build/$VIM_NAME"
 
   if [ "$FLAVOR" = vim ]; then
-    CONFIG_ARGS="--prefix=$INSTALL_PREFIX --enable-multibyte --without-x --enable-gui=no --with-compiledby=vim-testbed"
+    VIM_CONFIG_ARGS="--prefix=$INSTALL_PREFIX --enable-multibyte --without-x --enable-gui=no --with-compiledby=vim-testbed --with-tlib=ncurses"
   fi
   set +x
   echo "TAG:$TAG"
@@ -71,52 +71,6 @@ EOF
   set -x
 
   apk add --virtual vim-build curl gcc libc-dev make
-
-  if [ -n "$PYTHON2" ]; then
-    apk add --virtual vim-build python-dev
-    if [ "$FLAVOR" = vim ]; then
-      CONFIG_ARGS="$CONFIG_ARGS --enable-pythoninterp=dynamic"
-    else
-      apk add --virtual vim-build py2-pip
-      apk add python
-      pip2 install neovim
-    fi
-  fi
-
-  if [ -n "$PYTHON3" ]; then
-    apk add --virtual vim-build python3-dev
-    if [ "$FLAVOR" = vim ]; then
-      CONFIG_ARGS="$CONFIG_ARGS --enable-python3interp=dynamic"
-    else
-      apk add python3
-      pip3 install neovim
-    fi
-  fi
-
-  if [ $RUBY -eq 1 ]; then
-    apk add --virtual vim-build ruby-dev
-    apk add ruby
-    if [ "$FLAVOR" = vim ]; then
-      CONFIG_ARGS="$CONFIG_ARGS --enable-rubyinterp"
-    else
-      apk add --virtual vim-build ruby-rdoc ruby-irb
-      gem install neovim
-    fi
-  fi
-
-  if [ $LUA -eq 1 ]; then
-    if [ "$FLAVOR" = vim ]; then
-      CONFIG_ARGS="$CONFIG_ARGS --enable-luainterp"
-      apk add --virtual vim-build lua5.3-dev
-      apk add lua5.3-libs
-    else
-      echo 'NOTE: -lua is automatically used with Neovim 0.2.1+, and not supported before.'
-    fi
-  fi
-
-  if [ "$FLAVOR" = vim ] && [ -n "$CONFIGURE_OPTIONS" ]; then
-    CONFIG_ARGS="$CONFIG_ARGS $CONFIGURE_OPTIONS"
-  fi
 
   cd /vim
 
@@ -136,9 +90,75 @@ EOF
     cd "$BUILD_DIR"
   fi
 
+  vim_has_dynamic_python() {
+    # Added in b744b2f (released as Vim 7.3g).
+    if [ -e src/configure.ac ]; then
+      return 1
+    fi
+    grep -q -e '--enable-pythoninterp.*OPTS=.*dynamic' src/configure.in
+  }
+
+  if [ -n "$PYTHON2" ]; then
+    apk add --virtual vim-build python-dev
+    if [ "$FLAVOR" = vim ]; then
+      if vim_has_dynamic_python; then
+        VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-pythoninterp=dynamic"
+      else
+        VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-pythoninterp"
+        apk add python
+      fi
+    else
+      apk add --virtual vim-build py2-pip
+      apk add python
+      pip2 install neovim
+    fi
+  fi
+
+  if [ -n "$PYTHON3" ]; then
+    apk add --virtual vim-build python3-dev
+    if [ "$FLAVOR" = vim ]; then
+      if ! [ -e src/if_python3.c ]; then
+        echo 'WARNING: Python 3 support seems to be missing in this version?!'
+      fi
+      if vim_has_dynamic_python; then
+        VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-python3interp=dynamic"
+      else
+        VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-python3interp"
+        apk add python3
+      fi
+    else
+      apk add python3
+      pip3 install neovim
+    fi
+  fi
+
+  if [ $RUBY -eq 1 ]; then
+    apk add --virtual vim-build ruby-dev
+    apk add ruby
+    if [ "$FLAVOR" = vim ]; then
+      VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-rubyinterp"
+    else
+      apk add --virtual vim-build ruby-rdoc ruby-irb
+      gem install neovim
+    fi
+  fi
+
+  if [ $LUA -eq 1 ]; then
+    if [ "$FLAVOR" = vim ]; then
+      VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-luainterp"
+      apk add --virtual vim-build lua5.3-dev
+      apk add lua5.3-libs
+    else
+      echo 'NOTE: -lua is automatically used with Neovim 0.2.1+, and not supported before.'
+    fi
+  fi
+
   if [ "$FLAVOR" = vim ]; then
     apk add --virtual vim-build ncurses-dev
     apk add ncurses
+    if [ -n "$CONFIGURE_OPTIONS" ]; then
+      VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS $CONFIGURE_OPTIONS"
+    fi
   elif [ "$FLAVOR" = neovim ]; then
     # Some of them will be installed already, but it is a good reference for
     # what is required.
@@ -192,9 +212,9 @@ build() {
       fi
     fi
 
-    echo "Configuring with: $CONFIG_ARGS"
+    echo "Configuring with: $VIM_CONFIG_ARGS"
     # shellcheck disable=SC2086
-    ./configure $CONFIG_ARGS || bail "Could not configure"
+    ./configure $VIM_CONFIG_ARGS || bail "Could not configure"
     make CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2" -j4 || bail "Make failed"
     make install || bail "Install failed"
 
@@ -237,6 +257,9 @@ build() {
     VIM_BIN="$INSTALL_PREFIX/bin/vim"
   else
     VIM_BIN="$INSTALL_PREFIX/bin/nvim"
+  fi
+  if ! [ -e "$VIM_BIN" ]; then
+    bail "Binary $VIM_BIN was not created."
   fi
   link_target="/vim-build/bin/$NAME"
   if [ -e "$link_target" ]; then

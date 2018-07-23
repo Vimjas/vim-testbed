@@ -199,10 +199,19 @@ build() {
     make install || bail "Install failed"
 
   elif [ "$FLAVOR" = neovim ]; then
+    DEPS_CMAKE_FLAGS="-DUSE_BUNDLED=OFF"
+
+    # Use bundled unibilium with older releases that data directly, and not
+    # through unibi_var_from_num like it is required now.
+    if ! grep -qF 'unibi_var_from_num' src/nvim/tui/tui.c; then
+      DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_UNIBILIUM=ON"
+    fi
+
+    head_info=$(curl --retry 3 -SL "https://api.github.com/repos/$repo/git/refs/heads/$tag")
     make CMAKE_BUILD_TYPE=RelWithDebInfo \
       CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX \
         -DENABLE_JEMALLOC=OFF" \
-      DEPS_CMAKE_FLAGS="-DUSE_BUNDLED=OFF" \
+      DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS" \
         || bail "Make failed"
 
     versiondef_file=build/config/auto/versiondef.h

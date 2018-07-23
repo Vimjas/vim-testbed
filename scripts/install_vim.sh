@@ -107,8 +107,8 @@ EOF
   if [ $LUA -eq 1 ]; then
     if [ "$FLAVOR" = vim ]; then
       CONFIG_ARGS="$CONFIG_ARGS --enable-luainterp"
-      apk add --virtual vim-build lua-dev
-      apk add lua
+      apk add --virtual vim-build lua5.3-dev
+      apk add lua5.3-libs
     else
       echo 'NOTE: -lua is automatically used with Neovim 0.2.1+, and not supported before.'
     fi

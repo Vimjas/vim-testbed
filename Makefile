@@ -1,6 +1,6 @@
 .PHONY: build push test
 
-TAG:=10
+TAG:=11
 
 build:
 	docker build -t testbed/vim:$(TAG) .

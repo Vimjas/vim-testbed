@@ -64,7 +64,7 @@ test:
 	  exit 1; \
 	fi; \
 	neovim_master_version=$$(docker run --rm "$(IMAGE)" neovim-master -u NONE --version | grep '^NVIM'); \
-	if ! echo "$$neovim_master_version" | grep -Eq '^NVIM v[0-9.]+-dev-[0-9a-f]+$$'; then \
+	if ! echo "$$neovim_master_version" | grep -Eq '^NVIM v[0-9.]+-dev'; then \
 	  echo "Unexpected version for Neovim master: $$neovim_master_version" >&2; \
 	  exit 1; \
 	fi

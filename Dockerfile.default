@@ -1,0 +1,16 @@
+# A set of default Vims, including the latest Neovim release.
+#
+# This is available online at https://hub.docker.com/r/testbed/vim-default/.
+FROM testbed/vim
+
+# Currently tested versions:
+#  - v7.3.429 (Ubuntu Precise, 12.04LTS; same as on Travis currently)
+#  - v7.4.052 (Ubuntu Trusty, 14.04LTS)
+#  - v7.4.1689 (Ubuntu Xenial, 16.04LTS)
+#  - v8.1.0000 (Stable release according to Windows download at
+#               http://www.vim.org/download.php)
+RUN install_vim -tag v7.3.429 -name vim73 -py -build \
+                -tag v7.4.052 -name vim74-trusty -build \
+                -tag v7.4.1689 -name vim74-xenial -build \
+                -tag v8.1.0000 -name vim -py2 -py3 -build \
+                -tag neovim:v0.3.1 -name nvim -py2 -py3 -build

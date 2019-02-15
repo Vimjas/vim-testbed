@@ -184,12 +184,12 @@ build() {
 
   if [ "$FLAVOR" = vim ]; then
     # Apply build fix from v7.1.148.
+    # NOTE: this silently does nothing with 7.1.148+, but can be skipped with
+    # Vim 8+ (and needs to for 8.0.0082, where src/configure.in was renamed to
+    # src/configure.ac).
     MAJOR="$(sed -n '/^MAJOR = / s~MAJOR = ~~p' Makefile)"
     if [ "$MAJOR" -lt 8 ]; then
-      MINOR="$(sed -n '/^MINOR = / s~MINOR = ~~p' Makefile)"
-      if [ "$MINOR" = "1" ] || [ "${MINOR#0}" != "$MINOR" ]; then
-        sed -i 's~sys/time.h termio.h~sys/time.h sys/types.h termio.h~' src/configure.in src/auto/configure
-      fi
+      sed -i 's~sys/time.h termio.h~sys/time.h sys/types.h termio.h~' src/configure.in src/auto/configure
     fi
 
     echo "Configuring with: $CONFIG_ARGS"

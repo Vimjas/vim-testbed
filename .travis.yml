@@ -1,7 +1,7 @@
-sudo: false
+dist: xenial
 
 services:
   - docker
 
-script: |
-  make test
+script:
+  - make test

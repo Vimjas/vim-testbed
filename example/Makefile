@@ -7,13 +7,22 @@ WRITABLE_HOME:=$(shell tmpdir=$$(mktemp -d --dry-run); \
 	cd $(CURDIR)/test; \
 	cp -a vimrc *.vader $${tmpdir}/; \
 	echo $${tmpdir})
-DOCKER = docker run -a stderr --rm \
+DOCKER = docker run -ti --rm \
 	-v $(CURDIR):/testplugin \
 	-v $(WRITABLE_HOME):/home/vimtest \
 	-v $(CURDIR)/$(PLUGINS):/home/vimtest/plugins "$(IMAGE)"
 
-test: build $(PLUGINS)/vader.vim
-test: test_vim71_with_profiling_enabled
+test_quick: $(PLUGINS)/vader.vim
+test_quick:
+	docker build -f Dockerfile.quicktests -t "$(IMAGE)" .
+	docker run --rm "$(IMAGE)" vim71 -es -u NORC -c "exe has('profile') ? 'q' : 'cq'" || { \
+	  echo "vim71 should have FEAT_PROFILE enabled."; \
+	  docker run --rm "$(IMAGE)" vim71 --version; \
+	  exit 1; }
+	$(DOCKER) vim71 '+Vader! test/*'
+
+test: test_quick
+test: Dockerfile.tests $(PLUGINS)/vader.vim
 test:
 	set -ex; \
 	vims="$$(docker run --rm $(IMAGE) ls /vim-build/bin | grep vim)"; \
@@ -69,12 +78,6 @@ test:
 	  exit 1; \
 	fi
 
-test_vim71_with_profiling_enabled:
-	docker run --rm "$(IMAGE)" vim71 -es -u NORC -c "exe has('profile') ? 'q' : 'cq'" || { \
-	  echo "vim71 should have FEAT_PROFILE enabled."; \
-	  docker run --rm "$(IMAGE)" vim71 --version; \
-	  exit 1; }
-
 build: Dockerfile.tests
 	docker build -f Dockerfile.tests -t "$(IMAGE)" .
 
@@ -87,4 +90,4 @@ $(PLUGINS)/vader.vim:
 	mkdir -p $(PLUGINS)
 	cd $(PLUGINS) && git clone https://github.com/junegunn/vader.vim.git
 
-.PHONY: test-setup test
+.PHONY: test

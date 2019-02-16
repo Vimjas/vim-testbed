@@ -1,0 +1,5 @@
+# Dockerfile for quick tests.
+FROM vim-testbed-base
+
+RUN install_vim -tag v7.1 -name vim71 \
+  -prebuild_script 'echo "#define FEAT_PROFILE" >> src/feature.h' -build

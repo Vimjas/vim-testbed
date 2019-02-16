@@ -1,5 +1,3 @@
-.PHONY: build push test
-
 TAG:=11
 
 build:

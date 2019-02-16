@@ -15,6 +15,6 @@ DOCKER_BASE_IMAGE:=vim-testbed-base
 
 test test_quick:
 	docker build -t "$(DOCKER_BASE_IMAGE)" .
-	make -C example $<
+	make -C example $@
 
 .PHONY: build push test test_quick

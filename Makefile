@@ -1,5 +1,3 @@
-.PHONY: build push test
-
 TAG:=11
 
 build:
@@ -13,8 +11,13 @@ update_latest:
 	docker push testbed/vim:latest
 
 # test: build the base image and example image on top, running tests therein.
-build_test: build
+build_example_for_test: build
 	docker tag testbed/vim:$(TAG) vim-testbed-base
 	make -C example build
-test: build_test
+
+test_example:
 	make -C example test
+
+test: build_example_for_test test_example
+
+.PHONY: build push update_latest build_example_for_test test_example test

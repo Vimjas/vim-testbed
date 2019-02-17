@@ -5,7 +5,7 @@ services:
   - docker
 
 install:
-  - make build_test
+  - make build_example_for_test
 
 script:
-  - make --keep-going test
+  - make --keep-going test_example

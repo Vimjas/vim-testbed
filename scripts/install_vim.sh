@@ -20,7 +20,7 @@ init_vars() {
   PREBUILD_SCRIPT=
 }
 
-APK_BUILD_DEPS=""
+APK_BUILD_DEPS=
 apk_add_build_dep() {
   apk add "$@"
   APK_BUILD_DEPS="$APK_BUILD_DEPS $*"
@@ -327,8 +327,11 @@ if [ "$clean" = 0 ]; then
   echo "NOTE: skipping cleanup."
 else
   echo "Pruning packages and dirs.."
-  # shellcheck disable=SC2086
-  apk info -q $APK_BUILD_DEPS > /dev/null && apk del $APK_BUILD_DEPS
+  if [ -n "$APK_BUILD_DEPS" ]; then
+    # shellcheck disable=SC2086
+    apk del $APK_BUILD_DEPS
+    APK_BUILD_DEPS=
+  fi
   rm -rf /vim/*
   rm -rf /var/cache/apk/* /tmp/* /var/tmp/* /root/.cache
   find / \( -name '*.pyc' -o -name '*.pyo' \) -delete

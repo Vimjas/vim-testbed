@@ -21,8 +21,19 @@ test_count_vims:
 	  exit 1; \
 	fi
 
+test_vims_basic_test:
+	set -ex; \
+	vims="$$(docker run --rm $(IMAGE) ls /vim-build/bin | grep vim)"; \
+	if [ -z "$$vims" ]; then echo "No Vims found!"; exit 1; fi; \
+	failed=; \
+	for vim in $$vims; do \
+	  $(DOCKER) $$vim '+Vader! test/*' || failed="$$failed $$vim"; \
+	done; \
+	if [ -n "$$failed" ]; then echo "Failed Vims:$$failed"; exit 1; fi
+
 test: build $(PLUGINS)/vader.vim
 test: test_count_vims
+test: test_vims_basic_test
 test: test_vim71_with_profiling_enabled
 test:
 	set -ex; \

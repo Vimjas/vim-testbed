@@ -79,7 +79,7 @@ EOF
     else
       apk add --virtual vim-build py2-pip
       apk add python
-      pip2 install neovim
+      pip2 install pynvim
     fi
   fi
 
@@ -89,7 +89,7 @@ EOF
       CONFIG_ARGS="$CONFIG_ARGS --enable-python3interp=dynamic"
     else
       apk add python3
-      pip3 install neovim
+      pip3 install pynvim
     fi
   fi
 
@@ -208,6 +208,8 @@ build() {
     fi
 
     head_info=$(curl --retry 3 -SL "https://api.github.com/repos/$repo/git/refs/heads/$tag")
+    # NOTE: ENABLE_JEMALLOC has been removed in v0.3.4-168-gc2343180d
+    # (https://github.com/neovim/neovim/commit/c2343180d).
     make CMAKE_BUILD_TYPE=RelWithDebInfo \
       CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX \
         -DENABLE_JEMALLOC=OFF" \

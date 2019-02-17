@@ -1,7 +1,11 @@
-sudo: false
+dist: xenial
+language: minimal
 
 services:
   - docker
 
-script: |
-  make test
+install:
+  - make build_example_for_test
+
+script:
+  - make --keep-going test_example

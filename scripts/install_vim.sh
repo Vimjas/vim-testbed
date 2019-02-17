@@ -79,7 +79,7 @@ EOF
     else
       apk add --virtual vim-build py2-pip
       apk add python
-      pip2 install neovim
+      pip2 install pynvim
     fi
   fi
 
@@ -89,7 +89,7 @@ EOF
       CONFIG_ARGS="$CONFIG_ARGS --enable-python3interp=dynamic"
     else
       apk add python3
-      pip3 install neovim
+      pip3 install pynvim
     fi
   fi
 

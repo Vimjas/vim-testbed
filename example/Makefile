@@ -7,7 +7,7 @@ WRITABLE_HOME:=$(shell tmpdir=$$(mktemp -d --dry-run); \
 	cd $(CURDIR)/test; \
 	cp -a vimrc *.vader $${tmpdir}/; \
 	echo $${tmpdir})
-DOCKER = docker run -a stderr --rm \
+DOCKER = docker run -it --rm \
 	-v $(CURDIR):/testplugin \
 	-v $(WRITABLE_HOME):/home/vimtest \
 	-v $(CURDIR)/$(PLUGINS):/home/vimtest/plugins "$(IMAGE)"

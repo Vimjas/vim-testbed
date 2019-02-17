@@ -4,7 +4,7 @@ services:
   - docker
 
 before_script:
-  - make -C example build
+  - make build_test
 
 script:
   - make --keep-going test

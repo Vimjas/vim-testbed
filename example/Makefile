@@ -12,22 +12,20 @@ DOCKER = docker run -a stderr --rm \
 	-v $(WRITABLE_HOME):/home/vimtest \
 	-v $(CURDIR)/$(PLUGINS):/home/vimtest/plugins "$(IMAGE)"
 
-test: build $(PLUGINS)/vader.vim
-test: test_vim71_with_profiling_enabled
-test:
+test_count_vims:
 	set -ex; \
-	vims="$$(docker run --rm $(IMAGE) ls /vim-build/bin | grep vim)"; \
-	if [ -z "$$vims" ]; then echo "No Vims found!"; exit 1; fi; \
-	count_vims=0; \
-	for vim in $$vims; do \
-	  (( ++count_vims )); \
-	  $(DOCKER) $$vim '+Vader! test/*'; \
-	done; \
+	count_vims="$$(docker run --rm $(IMAGE) ls /vim-build/bin | grep -c vim)"; \
 	expected_vims=$$(egrep -c -- '^[^#]+\s-tag' Dockerfile.tests); \
 	if [ "$$count_vims" != "$$expected_vims" ]; then \
 	  echo "Expected $$expected_vims Vims, but found $$count_vims: $$vims" >&2; \
 	  exit 1; \
-	fi; \
+	fi
+
+test: build $(PLUGINS)/vader.vim
+test: test_count_vims
+test: test_vim71_with_profiling_enabled
+test:
+	set -ex; \
 	for vim in "neovim-master --headless" vim-master; do \
 	  $(DOCKER) $${vim} -u NONE \
 	    "+py  import sys; open('/home/vimtest/py2', 'w').write(str(sys.version_info[0]))" \
@@ -87,4 +85,4 @@ $(PLUGINS)/vader.vim:
 	mkdir -p $(PLUGINS)
 	cd $(PLUGINS) && git clone https://github.com/junegunn/vader.vim.git
 
-.PHONY: test-setup test
+.PHONY: test-setup test test_count_vims

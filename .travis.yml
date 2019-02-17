@@ -3,5 +3,8 @@ dist: xenial
 services:
   - docker
 
+before_script:
+  - make -C example build
+
 script:
   - make --keep-going test

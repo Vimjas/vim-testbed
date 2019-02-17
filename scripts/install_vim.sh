@@ -20,6 +20,12 @@ init_vars() {
   PREBUILD_SCRIPT=
 }
 
+APK_BUILD_DEPS=""
+apk_add_build_dep() {
+  apk add "$@"
+  APK_BUILD_DEPS="$APK_BUILD_DEPS $*"
+}
+
 prepare_build() {
   [ -z $TAG ] && bail "-tag is required"
 
@@ -60,7 +66,7 @@ EOF
   INSTALL_PREFIX="/vim-build/$VIM_NAME"
 
   if [ "$FLAVOR" = vim ]; then
-    CONFIG_ARGS="--prefix=$INSTALL_PREFIX --enable-multibyte --without-x --enable-gui=no --with-compiledby=vim-testbed"
+    CONFIG_ARGS="--prefix=$INSTALL_PREFIX --enable-multibyte --without-x --enable-gui=no --with-compiledby=vim-testbed --with-tlib=ncurses"
   fi
   set +x
   echo "TAG:$TAG"
@@ -70,21 +76,21 @@ EOF
   echo "NAME:$NAME"
   set -x
 
-  apk add --virtual vim-build curl gcc libc-dev make
+  apk_add_build_dep curl gcc libc-dev make
 
   if [ -n "$PYTHON2" ]; then
-    apk add --virtual vim-build python-dev
+    apk_add_build_dep python-dev
     if [ "$FLAVOR" = vim ]; then
       CONFIG_ARGS="$CONFIG_ARGS --enable-pythoninterp=dynamic"
     else
-      apk add --virtual vim-build py2-pip
+      apk_add_build_dep py2-pip
       apk add python
       pip2 install pynvim
     fi
   fi
 
   if [ -n "$PYTHON3" ]; then
-    apk add --virtual vim-build python3-dev
+    apk_add_build_dep python3-dev
     if [ "$FLAVOR" = vim ]; then
       CONFIG_ARGS="$CONFIG_ARGS --enable-python3interp=dynamic"
     else
@@ -94,12 +100,12 @@ EOF
   fi
 
   if [ $RUBY -eq 1 ]; then
-    apk add --virtual vim-build ruby-dev
+    apk_add_build_dep ruby-dev
     apk add ruby
     if [ "$FLAVOR" = vim ]; then
       CONFIG_ARGS="$CONFIG_ARGS --enable-rubyinterp"
     else
-      apk add --virtual vim-build ruby-rdoc ruby-irb
+      apk_add_build_dep ruby-rdoc ruby-irb
       gem install neovim
     fi
   fi
@@ -107,7 +113,7 @@ EOF
   if [ $LUA -eq 1 ]; then
     if [ "$FLAVOR" = vim ]; then
       CONFIG_ARGS="$CONFIG_ARGS --enable-luainterp"
-      apk add --virtual vim-build lua5.3-dev
+      apk_add_build_dep lua5.3-dev
       apk add lua5.3-libs
     else
       echo 'NOTE: -lua is automatically used with Neovim 0.2.1+, and not supported before.'
@@ -137,7 +143,7 @@ EOF
   fi
 
   if [ "$FLAVOR" = vim ]; then
-    apk add --virtual vim-build ncurses-dev
+    apk_add_build_dep ncurses-dev
     apk add ncurses
   elif [ "$FLAVOR" = neovim ]; then
     # Some of them will be installed already, but it is a good reference for
@@ -150,7 +156,7 @@ EOF
       luajit \
       msgpack-c \
       unibilium
-    apk add --virtual vim-build \
+    apk_add_build_dep \
       autoconf \
       automake \
       ca-certificates \
@@ -321,7 +327,8 @@ if [ "$clean" = 0 ]; then
   echo "NOTE: skipping cleanup."
 else
   echo "Pruning packages and dirs.."
-  apk info -q vim-build > /dev/null && apk del vim-build
+  # shellcheck disable=SC2086
+  apk info -q $APK_BUILD_DEPS > /dev/null && apk del $APK_BUILD_DEPS
   rm -rf /vim/*
   rm -rf /var/cache/apk/* /tmp/* /var/tmp/* /root/.cache
   find / \( -name '*.pyc' -o -name '*.pyo' \) -delete

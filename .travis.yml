@@ -4,7 +4,7 @@ language: minimal
 services:
   - docker
 
-before_script:
+install:
   - make build_test
 
 script:

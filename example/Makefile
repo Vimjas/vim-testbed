@@ -27,7 +27,12 @@ test_vims_basic_test:
 	if [ -z "$$vims" ]; then echo "No Vims found!"; exit 1; fi; \
 	failed=; \
 	for vim in $$vims; do \
-	  $(DOCKER) $$vim '+Vader! test/*' || failed="$$failed $$vim"; \
+	  if [ "$${vim#neovim-}" != "$$vim" ]; then \
+	    vim_opts="--headless"; \
+	  else \
+	    vim_opts=""; \
+	  fi; \
+	  $(DOCKER) $$vim "$$vim_opts" '+Vader! test/*' || failed="$$failed $$vim"; \
 	done; \
 	if [ -n "$$failed" ]; then echo "Failed Vims:$$failed"; exit 1; fi
 

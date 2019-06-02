@@ -113,7 +113,7 @@ EOF
   if [ $LUA -eq 1 ]; then
     if [ "$FLAVOR" = vim ]; then
       CONFIG_ARGS="$CONFIG_ARGS --enable-luainterp"
-      apk_add_build_dep lua5.3 lua5.3-dev
+      apk_add_build_dep lua5.3-dev
       apk add lua5.3-libs
       # Install symlink to make Vim's configure pick it up.
       (cd /usr/bin && ln -s lua5.3 lua)

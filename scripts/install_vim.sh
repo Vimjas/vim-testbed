@@ -20,10 +20,16 @@ init_vars() {
   PREBUILD_SCRIPT=
 }
 
+# "apk add --virtual" does not add to existing virtual package anymore since
+# Alpine 3.9 (https://bugs.alpinelinux.org/issues/9651).
 APK_BUILD_DEPS=
 apk_add_build_dep() {
-  apk add "$@"
-  APK_BUILD_DEPS="$APK_BUILD_DEPS $*"
+  for dep; do
+    if ! apk info -e "$dep"; then
+      apk add "$dep"
+      APK_BUILD_DEPS="$APK_BUILD_DEPS $dep"
+    fi
+  done
 }
 
 prepare_build() {

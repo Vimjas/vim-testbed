@@ -70,6 +70,7 @@ test:
 	  if [ "$$(<$(WRITABLE_HOME)/lua)" != "lua was here" ]; then \
 	    echo "Failed to get output from Lua for $${vim}." >&2; exit 1; \
 	  fi; \
+	  $(RM) $(WRITABLE_HOME)/lua; \
 	done; \
 	neovim_tag_version=$$(docker run --rm "$(IMAGE)" neovim-v0.2.0 -u NONE --version | grep '^NVIM'); \
 	if [ "$$neovim_tag_version" != 'NVIM v0.2.0' ]; then \

@@ -72,7 +72,7 @@ EOF
   INSTALL_PREFIX="/vim-build/$VIM_NAME"
 
   if [ "$FLAVOR" = vim ]; then
-    CONFIG_ARGS="--prefix=$INSTALL_PREFIX --enable-multibyte --without-x --enable-gui=no --with-compiledby=vim-testbed --with-tlib=ncurses"
+    VIM_CONFIG_ARGS="--prefix=$INSTALL_PREFIX --enable-multibyte --without-x --enable-gui=no --with-compiledby=vim-testbed --with-tlib=ncurses"
   fi
   set +x
   echo "TAG:$TAG"
@@ -87,7 +87,7 @@ EOF
   if [ -n "$PYTHON2" ]; then
     apk_add_build_dep python-dev
     if [ "$FLAVOR" = vim ]; then
-      CONFIG_ARGS="$CONFIG_ARGS --enable-pythoninterp=dynamic"
+      VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-pythoninterp=dynamic"
     else
       apk_add_build_dep py2-pip
       apk add python
@@ -98,7 +98,7 @@ EOF
   if [ -n "$PYTHON3" ]; then
     apk_add_build_dep python3-dev
     if [ "$FLAVOR" = vim ]; then
-      CONFIG_ARGS="$CONFIG_ARGS --enable-python3interp=dynamic"
+      VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-python3interp=dynamic"
     else
       apk add python3
       pip3 install pynvim
@@ -109,7 +109,7 @@ EOF
     apk_add_build_dep ruby-dev
     apk add ruby
     if [ "$FLAVOR" = vim ]; then
-      CONFIG_ARGS="$CONFIG_ARGS --enable-rubyinterp"
+      VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-rubyinterp"
     else
       apk_add_build_dep ruby-rdoc ruby-irb
       gem install neovim
@@ -118,7 +118,7 @@ EOF
 
   if [ $LUA -eq 1 ]; then
     if [ "$FLAVOR" = vim ]; then
-      CONFIG_ARGS="$CONFIG_ARGS --enable-luainterp"
+      VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-luainterp"
       apk_add_build_dep lua5.3-dev
       apk add lua5.3-libs
       # Install symlinks to make Vim's configure pick it up.
@@ -130,7 +130,7 @@ EOF
   fi
 
   if [ "$FLAVOR" = vim ] && [ -n "$CONFIGURE_OPTIONS" ]; then
-    CONFIG_ARGS="$CONFIG_ARGS $CONFIGURE_OPTIONS"
+    VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS $CONFIGURE_OPTIONS"
   fi
 
   cd /vim
@@ -207,9 +207,9 @@ build() {
       sed -i 's~sys/time.h termio.h~sys/time.h sys/types.h termio.h~' src/configure.in src/auto/configure
     fi
 
-    echo "Configuring with: $CONFIG_ARGS"
+    echo "Configuring with: $VIM_CONFIG_ARGS"
     # shellcheck disable=SC2086
-    ./configure $CONFIG_ARGS || bail "Could not configure"
+    ./configure $VIM_CONFIG_ARGS || bail "Could not configure"
     make CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2" -j4 || bail "Make failed"
     make install || bail "Install failed"
 
@@ -254,6 +254,9 @@ build() {
     VIM_BIN="$INSTALL_PREFIX/bin/vim"
   else
     VIM_BIN="$INSTALL_PREFIX/bin/nvim"
+  fi
+  if ! [ -e "$VIM_BIN" ]; then
+    bail "Binary $VIM_BIN was not created."
   fi
   link_target="/vim-build/bin/$NAME"
   if [ -e "$link_target" ]; then

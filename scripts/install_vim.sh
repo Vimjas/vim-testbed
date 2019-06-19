@@ -216,6 +216,13 @@ build() {
   elif [ "$FLAVOR" = neovim ]; then
     DEPS_CMAKE_FLAGS="-DUSE_BUNDLED=OFF"
 
+    # Install luv manually.  Required with Neovim 0.4.0+ (no yet released).
+    # Using -DUSE_BUNDLED_LUV=ON is broken with nvim-0.2.0 (at least), where
+    # it is optional (only for tests).
+    if grep -iq 'find.*libluv' CMakeLists.txt; then
+      DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_LUV=ON"
+    fi
+
     # Use bundled unibilium with older releases that data directly, and not
     # through unibi_var_from_num like it is required now.
     if ! grep -qF 'unibi_var_from_num' src/nvim/tui/tui.c; then

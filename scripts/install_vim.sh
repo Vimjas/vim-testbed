@@ -215,7 +215,7 @@ build() {
 
   elif [ "$FLAVOR" = neovim ]; then
     DEPS_CMAKE_FLAGS="-DUSE_BUNDLED=OFF"
-    DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_LIBUV=ON"
+    DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_LUV=ON"
 
     # Use bundled unibilium with older releases that data directly, and not
     # through unibi_var_from_num like it is required now.

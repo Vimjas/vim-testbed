@@ -217,22 +217,10 @@ build() {
     DEPS_CMAKE_FLAGS="-DUSE_BUNDLED=OFF"
 
     # Install luv manually.  Required with Neovim 0.4.0+ (no yet released).
-    # Using -DUSE_BUNDLED_LUV=ON is broken with nvim-0.2.0 (at least).
-    if grep -iq 'find.*libluv' CMakeLists.txt && ! [ -d "/tmp/luv-build" ]; then
-      luv_version="1.30.0-0"
-      luv_url="https://github.com/luvit/luv/releases/download/${luv_version}/luv-${luv_version}.tar.gz"
-      curl --retry 3 -SL "$luv_url" | tar zx
-      (
-        cd luv-${luv_version}
-        cmake -B build \
-          -DBUILD_MODULE=OFF \
-          -DBUILD_SHARED_LIBS=ON \
-          -DWITH_SHARED_LIBUV=ON \
-          -DLUA_BUILD_TYPE=System
-        cd build
-        make install
-      )
-      rm -rf luv-${luv_version}
+    # Using -DUSE_BUNDLED_LUV=ON is broken with nvim-0.2.0 (at least), where
+    # it is optional (only for tests).
+    if grep -iq 'find.*libluv' CMakeLists.txt; then
+      DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_LUV=ON"
     fi
 
     # Use bundled unibilium with older releases that data directly, and not

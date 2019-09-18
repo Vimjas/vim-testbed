@@ -217,6 +217,11 @@ build() {
     CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX"
     DEPS_CMAKE_FLAGS="-DUSE_BUNDLED=OFF"
 
+    # Use bundled libvterm.  Neovim 0.4.x requires 0.1, which is not yet in
+    # Alpine Linux.  Using the bundled version also makes it easier for older
+    # Neovim versions when Alpine updates it.
+    DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_LIBVTERM=ON"
+
     # Install luv manually.  Required with Neovim 0.4.0+ (no yet released).
     # Using -DUSE_BUNDLED_LUV=ON is broken with nvim-0.2.0 (at least), where
     # it is optional (only for tests).

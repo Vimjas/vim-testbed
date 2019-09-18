@@ -214,6 +214,7 @@ build() {
     make install || bail "Install failed"
 
   elif [ "$FLAVOR" = neovim ]; then
+    CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX"
     DEPS_CMAKE_FLAGS="-DUSE_BUNDLED=OFF"
 
     # Install luv manually.  Required with Neovim 0.4.0+ (no yet released).
@@ -223,18 +224,21 @@ build() {
       DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_LUV=ON"
     fi
 
-    # Use bundled unibilium with older releases that data directly, and not
+    # NOTE: ENABLE_JEMALLOC has been removed in v0.3.4-168-gc2343180d
+    # (https://github.com/neovim/neovim/commit/c2343180d).
+    if grep -q 'ENABLE_JEMALLOC' CMakeLists.txt; then
+      CMAKE_EXTRA_FLAGS="$CMAKE_EXTRA_FLAGS -DENABLE_JEMALLOC=OFF"
+    fi
+
+    # Use bundled unibilium with older releases that use data directly, and not
     # through unibi_var_from_num like it is required now.
     if ! grep -qF 'unibi_var_from_num' src/nvim/tui/tui.c; then
       DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_UNIBILIUM=ON"
     fi
 
-    # NOTE: ENABLE_JEMALLOC has been removed in v0.3.4-168-gc2343180d
-    # (https://github.com/neovim/neovim/commit/c2343180d).
     # NOTE: uses "make cmake" to avoid linking twice when changing versiondef.h
     make cmake CMAKE_BUILD_TYPE=RelWithDebInfo \
-      CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX \
-        -DENABLE_JEMALLOC=OFF" \
+      CMAKE_EXTRA_FLAGS="$CMAKE_EXTRA_FLAGS" \
       DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS" \
         || bail "make cmake failed"
 

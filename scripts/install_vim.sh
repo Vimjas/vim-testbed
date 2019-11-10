@@ -246,6 +246,11 @@ build() {
       DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_UNIBILIUM=ON"
     fi
 
+    if grep -qF 'UTF8PROC' CMakeLists.txt; then
+      apk add utf8proc
+      apk_add_build_dep utf8proc-dev
+    fi
+
     # NOTE: uses "make cmake" to avoid linking twice when changing versiondef.h
     make cmake CMAKE_BUILD_TYPE=RelWithDebInfo \
       CMAKE_EXTRA_FLAGS="$CMAKE_EXTRA_FLAGS" \

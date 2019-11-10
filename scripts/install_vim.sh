@@ -207,6 +207,9 @@ build() {
       sed -i 's~sys/time.h termio.h~sys/time.h sys/types.h termio.h~' src/configure.in src/auto/configure
     fi
 
+    # Apply Vim patch v8.0.1635 to fix build with Python.
+    sed -i '/#ifdef _POSIX_THREADS/,+2 d' src/if_python3.c
+
     echo "Configuring with: $VIM_CONFIG_ARGS"
     # shellcheck disable=SC2086
     ./configure $VIM_CONFIG_ARGS || bail "Could not configure"

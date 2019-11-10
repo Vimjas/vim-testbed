@@ -200,15 +200,17 @@ build() {
   if [ "$FLAVOR" = vim ]; then
     # Apply build fix from v7.1.148.
     # NOTE: this silently does nothing with 7.1.148+, but can be skipped with
-    # Vim 8+ (and needs to for 8.0.0082, where src/configure.in was renamed to
-    # src/configure.ac).
+    # Vim 8+ (and needs to be for 8.0.0082, where src/configure.in was renamed
+    # to src/configure.ac).
     MAJOR="$(sed -n '/^MAJOR = / s~MAJOR = ~~p' Makefile)"
     if [ "$MAJOR" -lt 8 ]; then
       sed -i 's~sys/time.h termio.h~sys/time.h sys/types.h termio.h~' src/configure.in src/auto/configure
     fi
 
     # Apply Vim patch v8.0.1635 to fix build with Python.
-    sed -i '/#ifdef _POSIX_THREADS/,+2 d' src/if_python3.c
+    if grep -q _POSIX_THREADS src/if_python3.c; then
+      sed -i '/#ifdef _POSIX_THREADS/,+2 d' src/if_python3.c
+    fi
 
     echo "Configuring with: $VIM_CONFIG_ARGS"
     # shellcheck disable=SC2086

@@ -44,11 +44,13 @@ test:
 	for vim in "neovim-master --headless" vim-master; do \
 	  $(DOCKER) $${vim} -u NONE \
 	    "+py  import sys; open('/home/vimtest/py2', 'w').write(str(sys.version_info[0]))" \
-	    "+py3 import sys; open('/home/vimtest/py3', 'w').write(str(sys.version_info[0]))" \
 	    '+q'; \
 	  if [ "$$(<$(WRITABLE_HOME)/py2)" != "2" ]; then \
 	    echo "Failed to get Python version from $${vim} (2)." >&2; exit 1; \
 	  fi; \
+	  $(DOCKER) $${vim} -u NONE \
+	    "+py3 import sys; open('/home/vimtest/py3', 'w').write(str(sys.version_info[0]))" \
+	    '+q'; \
 	  if [ "$$(<$(WRITABLE_HOME)/py3)" != "3" ]; then \
 	    echo "Failed to get Python version from $${vim} (3)." >&2; exit 1; \
 	  fi; \

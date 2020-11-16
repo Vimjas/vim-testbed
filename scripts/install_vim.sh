@@ -101,6 +101,7 @@ EOF
       VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-python3interp=dynamic"
     else
       apk add python3
+      apk add py3-pip
       pip3 install pynvim
     fi
   fi

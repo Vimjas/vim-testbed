@@ -89,8 +89,8 @@ EOF
     if [ "$FLAVOR" = vim ]; then
       VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-pythoninterp=dynamic"
     else
-      apk_add_build_dep py2-pip
       apk add python2
+      python2 -m ensurepip
       pip2 install pynvim
     fi
   fi

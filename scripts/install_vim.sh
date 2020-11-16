@@ -85,12 +85,12 @@ EOF
   apk_add_build_dep curl gcc libc-dev make
 
   if [ -n "$PYTHON2" ]; then
-    apk_add_build_dep python-dev
+    apk_add_build_dep python2-dev
     if [ "$FLAVOR" = vim ]; then
       VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-pythoninterp=dynamic"
     else
       apk_add_build_dep py2-pip
-      apk add python
+      apk add python2
       pip2 install pynvim
     fi
   fi

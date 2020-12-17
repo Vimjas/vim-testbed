@@ -85,12 +85,12 @@ EOF
   apk_add_build_dep curl gcc libc-dev make
 
   if [ -n "$PYTHON2" ]; then
-    apk_add_build_dep python-dev
+    apk_add_build_dep python2-dev
     if [ "$FLAVOR" = vim ]; then
       VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-pythoninterp=dynamic"
     else
-      apk_add_build_dep py2-pip
-      apk add python
+      apk add python2
+      python2 -m ensurepip
       pip2 install pynvim
     fi
   fi
@@ -101,6 +101,7 @@ EOF
       VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-python3interp=dynamic"
     else
       apk add python3
+      apk add py3-pip
       pip3 install pynvim
     fi
   fi
@@ -215,6 +216,7 @@ build() {
     # Vim patch 8.1.2201 (cannot build with dynamically linked Python 3.8).
     if [ -n "$PYTHON3" ]; then
       if ! grep -q "# if PY_VERSION_HEX >= 0x030800f0" src/if_python3.c; then
+        apk_add_build_dep patch
         curl https://github.com/vim/vim/commit/13a1f3fb0.patch \
           | sed -n -e '/diff --git a\/src\/version.c b\/src\/version.c/,$ d; p' \
           | patch -p1
@@ -230,6 +232,14 @@ build() {
   elif [ "$FLAVOR" = neovim ]; then
     CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX"
     DEPS_CMAKE_FLAGS="-DUSE_BUNDLED=OFF"
+
+    # Use bundled treesitter (not available on Alpine yet).
+    if grep -iq 'USE_BUNDLED_TS_PARSERS' third-party/CMakeLists.txt; then
+      DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_TS_PARSERS=ON"
+    fi
+    if grep -iq 'USE_BUNDLED_TS' third-party/CMakeLists.txt; then
+      DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_TS=ON"
+    fi
 
     # Use bundled libvterm.  Neovim 0.4.x requires 0.1, which is not yet in
     # Alpine Linux.  Using the bundled version also makes it easier for older

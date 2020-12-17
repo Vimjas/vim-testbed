@@ -233,6 +233,14 @@ build() {
     CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX"
     DEPS_CMAKE_FLAGS="-DUSE_BUNDLED=OFF"
 
+    # Use bundled treesitter (not available on Alpine yet).
+    if grep -iq 'USE_BUNDLED_TS_PARSERS' third-party/CMakeLists.txt; then
+      DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_TS_PARSERS=ON"
+    fi
+    if grep -iq 'USE_BUNDLED_TS' third-party/CMakeLists.txt; then
+      DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_TS=ON"
+    fi
+
     # Use bundled libvterm.  Neovim 0.4.x requires 0.1, which is not yet in
     # Alpine Linux.  Using the bundled version also makes it easier for older
     # Neovim versions when Alpine updates it.

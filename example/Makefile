@@ -2,7 +2,7 @@ SHELL := $(shell which bash)
 IMAGE := vim-testbed-example
 PLUGINS := test/plugins
 # A writable home directory, required for Neovim.
-WRITABLE_HOME:=$(shell tmpdir=$$(mktemp -d --dry-run); \
+WRITABLE_HOME := $(shell tmpdir=$$(mktemp -d --dry-run); \
 	mkdir -m 777 $${tmpdir}; \
 	cd $(CURDIR)/test; \
 	cp -a vimrc *.vader $${tmpdir}/; \

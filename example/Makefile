@@ -8,9 +8,9 @@ WRITABLE_HOME:=$(shell tmpdir=$$(mktemp -d --dry-run); \
 	cp -a vimrc *.vader $${tmpdir}/; \
 	echo $${tmpdir})
 ifneq ($(CI), true)
-  DOCKER_INTERACTIVE:=i
+  DOCKER_INTERACTIVE := i
 endif
-DOCKER:=docker run -t$(DOCKER_INTERACTIVE) --rm \
+DOCKER := docker run -t$(DOCKER_INTERACTIVE) --rm \
 	-v $(CURDIR):/testplugin \
 	-v $(WRITABLE_HOME):/home/vimtest \
 	-v $(CURDIR)/$(PLUGINS):/home/vimtest/plugins "$(IMAGE)"

@@ -21,7 +21,7 @@ jobs:
     - run: make --keep-going test_example
 
   test_single:
-    name: ${{ matrix.vim_tag }})
+    name: ${{ matrix.vim_name }}
     strategy:
       fail-fast: false
       matrix:

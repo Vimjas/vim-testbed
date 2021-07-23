@@ -90,6 +90,7 @@ EOF
       VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-pythoninterp=dynamic"
     else
       apk add python2
+      apk add g++  # for building greenlet
       python2 -m ensurepip
       pip2 install pynvim
     fi

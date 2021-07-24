@@ -229,6 +229,12 @@ build() {
           | sed -n -e '/diff --git a\/src\/version.c b\/src\/version.c/,$ d; p' \
           | patch -p1
       fi
+      # Vim patch 8.2.1225: linker errors when building with dynamic Python 3.9.
+      if grep -q "^#  define PyType_GetFlags py3_PyType_GetFlags" src/if_python3.c; then
+        curl https://github.com/vim/vim/commit/ee1b93169.patch \
+          | sed -n -e '/diff --git a\/src\/version.c b\/src\/version.c/,$ d; p' \
+          | patch -p1
+      fi
     fi
 
     echo "Configuring with: $VIM_CONFIG_ARGS"

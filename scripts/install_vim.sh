@@ -215,14 +215,16 @@ build() {
       sed -i '/#ifdef _POSIX_THREADS/,+2 d' src/if_python3.c
     fi
 
-    # Vim patch 8.1.2201 (cannot build with dynamically linked Python 3.8).
-    # Vim patch 8.2.0354 (Python 3.9 does not define _Py_DEC_REFTOTAL).
     if [ -n "$PYTHON3" ]; then
+      # Vim patch 8.1.2201 (cannot build with dynamically linked Python 3.8).
       if ! grep -q "# if PY_VERSION_HEX >= 0x030800f0" src/if_python3.c; then
         apk_add_build_dep patch
         curl https://github.com/vim/vim/commit/13a1f3fb0.patch \
           | sed -n -e '/diff --git a\/src\/version.c b\/src\/version.c/,$ d; p' \
           | patch -p1
+      fi
+      # Vim patch 8.2.0354 (Python 3.9 does not define _Py_DEC_REFTOTAL).
+      if grep -q "^    _Py_DEC_REFTOTAL;$" src/if_python3.c; then
         curl https://github.com/vim/vim/commit/a65bb5351.patch \
           | sed -n -e '/diff --git a\/src\/version.c b\/src\/version.c/,$ d; p' \
           | patch -p1

@@ -10,7 +10,9 @@ on:
 
 jobs:
   test_single:
-    name: ${{ matrix.vim_name }}
+    # Single/simple build instructions to ensure e.g. that build deps for -py2
+    # do not implicitly fix -py3 builds (which would fail alone then).
+    name: 'test_single: ${{ matrix.vim_name }}'
     strategy:
       fail-fast: false
       matrix:
@@ -41,8 +43,8 @@ jobs:
           make build_example_for_test
       - run: make -C example test_vims_basic_test
 
-  test_full:
-    needs: test_single
+  test_full_example:
+    name: Test full example
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2

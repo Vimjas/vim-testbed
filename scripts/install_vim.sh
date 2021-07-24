@@ -102,9 +102,7 @@ EOF
       VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-python3interp=dynamic"
     else
       apk add python3
-      apk_add_build_dep g++  # for building greenlet
-      apk add py3-pip
-      pip3 install pynvim
+      apk add py3-pynvim
     fi
   fi
 

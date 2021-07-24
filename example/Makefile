@@ -2,12 +2,15 @@ SHELL := $(shell which bash)
 IMAGE := vim-testbed-example
 PLUGINS := test/plugins
 # A writable home directory, required for Neovim.
-WRITABLE_HOME:=$(shell tmpdir=$$(mktemp -d --dry-run); \
+WRITABLE_HOME := $(shell tmpdir=$$(mktemp -d --dry-run); \
 	mkdir -m 777 $${tmpdir}; \
 	cd $(CURDIR)/test; \
 	cp -a vimrc *.vader $${tmpdir}/; \
 	echo $${tmpdir})
-DOCKER = docker run -it --rm \
+ifneq ($(CI), true)
+  DOCKER_INTERACTIVE := i
+endif
+DOCKER := docker run -t$(DOCKER_INTERACTIVE) --rm \
 	-v $(CURDIR):/testplugin \
 	-v $(WRITABLE_HOME):/home/vimtest \
 	-v $(CURDIR)/$(PLUGINS):/home/vimtest/plugins "$(IMAGE)"

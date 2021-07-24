@@ -1,6 +1,6 @@
 # Vim Testbed
 
-[![Build Status](https://travis-ci.org/Vimjas/vim-testbed.svg?branch=master)](https://travis-ci.org/Vimjas/vim-testbed)
+[![Build Status](https://github.com/Vimjas/vim-testbed/actions/workflows/ci.yml/badge.svg?branch=master&event=push)](https://github.com/Vimjas/vim-testbed/actions?query=branch%3Amaster+event%3Apush)
 [![](https://badge.imagelayers.io/testbed/vim:latest.svg)](https://imagelayers.io/?images=testbed/vim:latest)
 
 Because unit testing a Vim plugin is a pain in the ass.
@@ -8,11 +8,11 @@ Because unit testing a Vim plugin is a pain in the ass.
 [vader.vim](https://github.com/junegunn/vader.vim) provides a pretty
 straightforward way to test Vim plugins.  But, you'll only be testing on the
 version of Vim you have installed.  Then there's the issue of running automated
-tests with Travis-CI where you have to either:
+tests with CI where you have to either:
 
 - Build Vim from source which takes an eternity, then run your tests.
-- Use the version that came with Ubuntu 12.04 which means you're only testing
-  your plugin's ability to run on 7.3.429.
+- Use the version that comes pre-installed which means you're only testing
+  your plugin's ability to run on some specific, possibly older version.
 
 With this base image, you can build the versions you need and reuse them in
 future tests.

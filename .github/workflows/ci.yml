@@ -11,7 +11,7 @@ on:
 jobs:
   test_single:
     # Single/simple build instructions to ensure e.g. that build deps for -py2
-    # do not implicitly fix -py3 builds (which would fail alone then).
+    # do not implicitly fix -py3 builds (which might fail otherwise).
     name: 'test: ${{ matrix.m_name }}'
     strategy:
       fail-fast: false

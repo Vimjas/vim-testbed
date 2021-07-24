@@ -16,7 +16,7 @@ jobs:
       matrix:
         include:
           - vim_name: vim71
-            install_vim_args: -name vim71 -prebuild_script 'echo "#define FEAT_PROFILE" >> src/feature.h'
+            install_vim_args: -tag v7.1 -name vim71 -prebuild_script 'echo "#define FEAT_PROFILE" >> src/feature.h'
           - vim_name: vim73
             install_vim_args: -tag v7.3.429 -name vim73 -py
           - vim_name: vim74-trusty

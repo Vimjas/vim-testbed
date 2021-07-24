@@ -32,6 +32,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          printf 'FROM testbed/vim\nRUN install_vim %s -build\n' '${{ matrix.install_vim_args }}' > example/Dockerfile.tests
+          printf 'FROM vim-testbed-base\nRUN install_vim %s -build\n' '${{ matrix.install_vim_args }}' > example/Dockerfile.tests
           make build_example_for_test
       - run: make -C example test_vims_basic_test

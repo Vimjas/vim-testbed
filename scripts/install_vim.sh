@@ -284,6 +284,13 @@ build() {
       apk_add_build_dep utf8proc-dev
     fi
 
+    # Fix build with gcc10's -fno-common (from v0.5.0).
+    if ! grep -q "^EXTERN MultiQueue" src/nvim/msgpack_rpc/channel.h; then
+      apk_add_build_dep patch
+      curl https://github.com/neovim/neovim/commit/517bf1560.patch \
+        | patch -p1
+    fi
+
     # NOTE: uses "make cmake" to avoid linking twice when changing versiondef.h
     make cmake CMAKE_BUILD_TYPE=RelWithDebInfo \
       CMAKE_EXTRA_FLAGS="$CMAKE_EXTRA_FLAGS" \

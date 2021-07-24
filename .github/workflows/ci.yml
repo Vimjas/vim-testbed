@@ -9,16 +9,16 @@ on:
       - master
 
 jobs:
-  # tests:
-  #   runs-on: ubuntu-20.04
-  #
-  #   strategy:
-  #     fail-fast: false
-  #
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - run: make build_example_for_test
-  #   - run: make --keep-going test_example
+  tests:
+    runs-on: ubuntu-20.04
+
+    strategy:
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v2
+    - run: make build_example_for_test
+    - run: make --keep-going test_example
 
   test_single:
     name: ${{ matrix.vim_name }}

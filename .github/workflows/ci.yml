@@ -24,7 +24,7 @@ jobs:
           - m_name: vim74-trusty
             m_args: -tag v7.4.052 -name vim74-trusty -py3
           - m_name: vim82-before-py39-fix
-            m_args: -tag v8.2.0353 -name ${{ matrix.m_name }} -py3
+            m_args: -tag v8.2.0353 -name vim82 -py3
           - m_name: vim-master
             m_args: -tag master -py2 -py3 -ruby -lua
           - m_name: neovim-v0.2.0

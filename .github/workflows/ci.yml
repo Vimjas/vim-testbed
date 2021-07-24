@@ -9,17 +9,6 @@ on:
       - master
 
 jobs:
-  tests:
-    runs-on: ubuntu-20.04
-
-    strategy:
-      fail-fast: false
-
-    steps:
-    - uses: actions/checkout@v2
-    - run: make build_example_for_test
-    - run: make --keep-going test_example
-
   test_single:
     name: ${{ matrix.vim_name }}
     strategy:
@@ -35,3 +24,11 @@ jobs:
           printf 'FROM vim-testbed-base\nRUN install_vim %s -build\n' '${{ matrix.install_vim_args }}' > example/Dockerfile.tests
           make build_example_for_test
       - run: make -C example test_vims_basic_test
+
+  test_full:
+    needs: test_single
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - run: make build_example_for_test
+      - run: make --keep-going test_example

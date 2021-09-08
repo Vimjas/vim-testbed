@@ -218,13 +218,12 @@ build() {
       if ! grep -q "# if PY_VERSION_HEX >= 0x030800f0" src/if_python3.c; then
         apk_add_build_dep patch
         curl https://github.com/vim/vim/commit/13a1f3fb0.patch \
-          | sed -n -e '/diff --git a\/src\/version.c b\/src\/version.c/,$ d; p' \
           | patch -p1
       fi
       # Vim patch 8.2.0354 (Python 3.9 does not define _Py_DEC_REFTOTAL).
       if grep -q "^    _Py_DEC_REFTOTAL;$" src/if_python3.c; then
+        apk_add_build_dep patch
         curl https://github.com/vim/vim/commit/a65bb5351.patch \
-          | sed -n -e '/diff --git a\/src\/version.c b\/src\/version.c/,$ d; p' \
           | patch -p1
       fi
       # Vim patch 8.2.1225: linker errors when building with dynamic Python 3.9.

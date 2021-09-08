@@ -228,9 +228,10 @@ build() {
       fi
       # Vim patch 8.2.1225: linker errors when building with dynamic Python 3.9.
       if ! grep -q "^#  define PyType_GetFlags py3_PyType_GetFlags" src/if_python3.c; then
+        # NOTE: --fuzz=3 needed with Vim v7.4.052 (likely due to e.g. missingv8.1.0735).
+        apk_add_build_dep patch
         curl https://github.com/vim/vim/commit/ee1b93169.patch \
-          | sed -n -e '/diff --git a\/src\/version.c b\/src\/version.c/,$ d; p' \
-          | patch -p1
+          | patch -p1 --fuzz=3
       fi
     fi
 

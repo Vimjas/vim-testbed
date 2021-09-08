@@ -283,7 +283,7 @@ build() {
     fi
 
     # Fix build with gcc10's -fno-common (from v0.5.0).
-    if ! grep -q "^EXTERN MultiQueue" src/nvim/msgpack_rpc/channel.h; then
+    if grep -q "^MultiQueue \*ch_before_blocking_events;" src/nvim/msgpack_rpc/channel.h; then
       apk_add_build_dep patch
       curl https://github.com/neovim/neovim/commit/517bf1560.patch \
         | patch -p1

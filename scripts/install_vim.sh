@@ -102,9 +102,7 @@ EOF
       VIM_CONFIG_ARGS="$VIM_CONFIG_ARGS --enable-python3interp=dynamic"
     else
       apk add python3
-      apk_add_build_dep g++  # for building greenlet
-      apk add py3-pip
-      pip3 install pynvim
+      apk add py3-pynvim
     fi
   fi
 
@@ -215,13 +213,25 @@ build() {
       sed -i '/#ifdef _POSIX_THREADS/,+2 d' src/if_python3.c
     fi
 
-    # Vim patch 8.1.2201 (cannot build with dynamically linked Python 3.8).
     if [ -n "$PYTHON3" ]; then
+      # Vim patch 8.1.2201 (cannot build with dynamically linked Python 3.8).
       if ! grep -q "# if PY_VERSION_HEX >= 0x030800f0" src/if_python3.c; then
         apk_add_build_dep patch
         curl https://github.com/vim/vim/commit/13a1f3fb0.patch \
-          | sed -n -e '/diff --git a\/src\/version.c b\/src\/version.c/,$ d; p' \
           | patch -p1
+      fi
+      # Vim patch 8.2.0354 (Python 3.9 does not define _Py_DEC_REFTOTAL).
+      if grep -q "^    _Py_DEC_REFTOTAL;$" src/if_python3.c; then
+        apk_add_build_dep patch
+        curl https://github.com/vim/vim/commit/a65bb5351.patch \
+          | patch -p1
+      fi
+      # Vim patch 8.2.1225: linker errors when building with dynamic Python 3.9.
+      if ! grep -q "^#  define PyType_GetFlags py3_PyType_GetFlags" src/if_python3.c; then
+        # NOTE: --fuzz=3 needed with Vim v7.4.052 (likely due to e.g. missingv8.1.0735).
+        apk_add_build_dep patch
+        curl https://github.com/vim/vim/commit/ee1b93169.patch \
+          | patch -p1 --fuzz=3
       fi
     fi
 
@@ -270,6 +280,13 @@ build() {
     if grep -qF 'UTF8PROC' CMakeLists.txt; then
       apk add utf8proc
       apk_add_build_dep utf8proc-dev
+    fi
+
+    # Fix build with gcc10's -fno-common (from v0.5.0).
+    if ! grep -q "^EXTERN MultiQueue" src/nvim/msgpack_rpc/channel.h; then
+      apk_add_build_dep patch
+      curl https://github.com/neovim/neovim/commit/517bf1560.patch \
+        | patch -p1
     fi
 
     # NOTE: uses "make cmake" to avoid linking twice when changing versiondef.h

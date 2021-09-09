@@ -258,11 +258,13 @@ build() {
     # Neovim versions when Alpine updates it.
     DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_LIBVTERM=ON"
 
-    # Install luv manually.  Required with Neovim 0.4.0+ (no yet released).
-    # Using -DUSE_BUNDLED_LUV=ON is broken with nvim-0.2.0 (at least), where
-    # it is optional (only for tests).
+    # Install luv, for Neovim 0.4.0+, shipped with Alpine 3.10+.
+    # Only add it when required, since it was broken with nvim-0.2.0
+    # (at least, maybe only when using the bundled one), where it is optional
+    # (only for tests).
     if grep -iq 'find.*libluv' CMakeLists.txt; then
-      DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_LUV=ON"
+      apk add libluv
+      apk_add_build_dep libluv-dev
     fi
 
     # NOTE: ENABLE_JEMALLOC has been removed in v0.3.4-168-gc2343180d

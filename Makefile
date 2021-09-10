@@ -1,4 +1,4 @@
-TAG:=22
+TAG:=23
 
 build:
 	docker build -t testbed/vim:$(TAG) .

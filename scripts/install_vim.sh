@@ -258,11 +258,13 @@ build() {
     # Neovim versions when Alpine updates it.
     DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_LIBVTERM=ON"
 
-    # Install luv manually.  Required with Neovim 0.4.0+ (no yet released).
-    # Using -DUSE_BUNDLED_LUV=ON is broken with nvim-0.2.0 (at least), where
-    # it is optional (only for tests).
+    # Install luv, for Neovim 0.4.0+, shipped with Alpine 3.10+.
+    # Only add it when required, since it was broken with nvim-0.2.0
+    # (at least, maybe only when using the bundled one), where it is optional
+    # (only for tests).
     if grep -iq 'find.*libluv' CMakeLists.txt; then
-      DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_LUV=ON"
+      apk add libluv
+      apk_add_build_dep libluv-dev
     fi
 
     # NOTE: ENABLE_JEMALLOC has been removed in v0.3.4-168-gc2343180d
@@ -282,11 +284,28 @@ build() {
       apk_add_build_dep utf8proc-dev
     fi
 
-    # Fix build with gcc10's -fno-common (from v0.5.0).
+    # gcc10 fixes (due to -fno-common),
+    # required to fix builds with v0.3.0+, until v0.4.4/v0.5.0.
+    # Ref: https://github.com/neovim/neovim/commit/c036e24f3.patch
+    if grep -q '\} ListLenSpecials;$' src/nvim/eval/typval.h; then
+      apk_add_build_dep patch
+      curl https://github.com/neovim/neovim/commit/ebcde1de4.patch | patch -p1
+    fi
+    if grep -q '\} ExprParserFlags;$' src/nvim/viml/parser/expressions.h; then
+      apk_add_build_dep patch
+      curl https://github.com/neovim/neovim/commit/b87b4a614.patch | patch -p1
+    fi
+    if grep -q '\} RemapValues;$' src/nvim/getchar.h; then
+      apk_add_build_dep patch
+      curl https://github.com/neovim/neovim/commit/986db1adb.patch | patch -p1
+    fi
     if grep -q "^MultiQueue \*ch_before_blocking_events;" src/nvim/msgpack_rpc/channel.h; then
       apk_add_build_dep patch
-      curl https://github.com/neovim/neovim/commit/517bf1560.patch \
-        | patch -p1
+      curl https://github.com/neovim/neovim/commit/517bf1560.patch | patch -p1
+    fi
+    if grep -q '^EXTERN PMap(uint64_t) \*channels;$' src/nvim/channel.h; then
+      apk_add_build_dep patch
+      curl https://github.com/neovim/neovim/commit/823b2104c.patch | patch -p1
     fi
 
     # NOTE: uses "make cmake" to avoid linking twice when changing versiondef.h

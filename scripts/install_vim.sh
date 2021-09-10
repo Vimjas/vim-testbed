@@ -287,9 +287,25 @@ build() {
     # gcc10 fixes (due to -fno-common),
     # required to fix builds with v0.3.0+, until v0.4.4/v0.5.0.
     # Ref: https://github.com/neovim/neovim/commit/c036e24f3.patch
+    if grep -q '\} ListLenSpecials;$' src/nvim/eval/typval.h; then
+      apk_add_build_dep patch
+      curl https://github.com/neovim/neovim/commit/ebcde1de4.patch | patch -p1
+    fi
+    if grep -q '\} ExprParserFlags;$' src/nvim/viml/parser/expressions.h; then
+      apk_add_build_dep patch
+      curl https://github.com/neovim/neovim/commit/b87b4a614.patch | patch -p1
+    fi
+    if grep -q '\} RemapValues;$' src/nvim/getchar.h; then
+      apk_add_build_dep patch
+      curl https://github.com/neovim/neovim/commit/986db1adb.patch | patch -p1
+    fi
     if grep -q "^MultiQueue \*ch_before_blocking_events;" src/nvim/msgpack_rpc/channel.h; then
       apk_add_build_dep patch
-      curl https://github.com/neovim/neovim/commit/c036e24f3.patch | patch -fN -p1 || true
+      curl https://github.com/neovim/neovim/commit/517bf1560.patch | patch -p1
+    fi
+    if grep -q '^EXTERN PMap(uint64_t) \*channels;$' src/nvim/channel.h; then
+      apk_add_build_dep patch
+      curl https://github.com/neovim/neovim/commit/823b2104c.patch | patch -p1
     fi
 
     # NOTE: uses "make cmake" to avoid linking twice when changing versiondef.h

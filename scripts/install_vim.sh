@@ -289,7 +289,7 @@ build() {
     # Ref: https://github.com/neovim/neovim/commit/c036e24f3.patch
     if grep -q "^MultiQueue \*ch_before_blocking_events;" src/nvim/msgpack_rpc/channel.h; then
       apk_add_build_dep patch
-      curl https://github.com/neovim/neovim/commit/c036e24f3.patch | patch -p1
+      curl https://github.com/neovim/neovim/commit/c036e24f3.patch | patch -fN -p1
     fi
 
     # NOTE: uses "make cmake" to avoid linking twice when changing versiondef.h

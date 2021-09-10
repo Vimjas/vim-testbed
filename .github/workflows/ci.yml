@@ -29,7 +29,7 @@ jobs:
             m_args: -tag master -py2 -py3 -ruby -lua
           - m_name: neovim-v0.1.7
             m_args: -tag neovim:v0.1.7
-          - m_name: neovim-v0.2.0
+          - m_name: neovim-v0.2.2
             m_args: -tag neovim:v0.2.0 -py2 -py3 -ruby
           - m_name: neovim-v0.3.8
             m_args: -tag neovim:v0.3.8 -py3

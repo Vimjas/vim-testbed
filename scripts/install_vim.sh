@@ -82,7 +82,7 @@ EOF
   echo "NAME:$NAME"
   set -x
 
-  apk_add_build_dep curl gcc libc-dev make
+  apk_add_build_dep gcc libc-dev make
 
   if [ -n "$PYTHON2" ]; then
     apk_add_build_dep python2-dev
@@ -142,12 +142,10 @@ EOF
 
   BUILD_DIR="${FLAVOR}-${repo}-${tag}"
   if [ ! -d "$BUILD_DIR" ]; then
+    apk_add_build_dep git
     mkdir -p "$BUILD_DIR"
     cd "$BUILD_DIR"
-    # The git package adds about 200MB+ to the image.  So, no cloning.
-    url="https://github.com/$repo/archive/${tag}.tar.gz"
-    echo "Downloading $repo:$tag from $url"
-    curl --retry 3 -SL "$url" | tar zx --strip-components=1
+    git clone "https://github.com/$repo/${tag}"
   else
     cd "$BUILD_DIR"
   fi
@@ -216,20 +214,20 @@ build() {
     if [ -n "$PYTHON3" ]; then
       # Vim patch 8.1.2201 (cannot build with dynamically linked Python 3.8).
       if ! grep -q "# if PY_VERSION_HEX >= 0x030800f0" src/if_python3.c; then
-        apk_add_build_dep patch
+        apk_add_build_dep curl patch
         curl https://github.com/vim/vim/commit/13a1f3fb0.patch \
           | patch -p1
       fi
       # Vim patch 8.2.0354 (Python 3.9 does not define _Py_DEC_REFTOTAL).
       if grep -q "^    _Py_DEC_REFTOTAL;$" src/if_python3.c; then
-        apk_add_build_dep patch
+        apk_add_build_dep curl patch
         curl https://github.com/vim/vim/commit/a65bb5351.patch \
           | patch -p1
       fi
       # Vim patch 8.2.1225: linker errors when building with dynamic Python 3.9.
       if ! grep -q "^#  define PyType_GetFlags py3_PyType_GetFlags" src/if_python3.c; then
         # NOTE: --fuzz=3 needed with Vim v7.4.052 (likely due to e.g. missingv8.1.0735).
-        apk_add_build_dep patch
+        apk_add_build_dep curl patch
         curl https://github.com/vim/vim/commit/ee1b93169.patch \
           | patch -p1 --fuzz=3
       fi
@@ -288,23 +286,23 @@ build() {
     # required to fix builds with v0.3.0+, until v0.4.4/v0.5.0.
     # Ref: https://github.com/neovim/neovim/commit/c036e24f3.patch
     if grep -q '\} ListLenSpecials;$' src/nvim/eval/typval.h; then
-      apk_add_build_dep patch
+      apk_add_build_dep curl patch
       curl https://github.com/neovim/neovim/commit/ebcde1de4.patch | patch -p1
     fi
     if grep -q '\} ExprParserFlags;$' src/nvim/viml/parser/expressions.h; then
-      apk_add_build_dep patch
+      apk_add_build_dep curl patch
       curl https://github.com/neovim/neovim/commit/b87b4a614.patch | patch -p1
     fi
     if grep -q '\} RemapValues;$' src/nvim/getchar.h; then
-      apk_add_build_dep patch
+      apk_add_build_dep curl patch
       curl https://github.com/neovim/neovim/commit/986db1adb.patch | patch -p1
     fi
     if grep -q "^MultiQueue \*ch_before_blocking_events;" src/nvim/msgpack_rpc/channel.h; then
-      apk_add_build_dep patch
+      apk_add_build_dep curl patch
       curl https://github.com/neovim/neovim/commit/517bf1560.patch | patch -p1
     fi
     if grep -q '^EXTERN PMap(uint64_t) \*channels;$' src/nvim/channel.h; then
-      apk_add_build_dep patch
+      apk_add_build_dep curl patch
       curl https://github.com/neovim/neovim/commit/823b2104c.patch | patch -p1
     fi
 
@@ -314,18 +312,6 @@ build() {
       DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS" \
         || bail "make cmake failed"
 
-    versiondef_file=build/config/auto/versiondef.h
-    if grep -qF '#define NVIM_VERSION_PRERELEASE "-dev"' $versiondef_file \
-        && grep -qF '/* #undef NVIM_VERSION_MEDIUM */' $versiondef_file ; then
-
-      head_info=$(curl --retry 3 -SL "https://api.github.com/repos/$repo/git/refs/heads/$tag")
-      if [ -n "$head_info" ]; then
-        head_sha=$(echo "$head_info" | grep '"sha":' | cut -f4 -d\" | cut -b -7)
-        if [ -n "$head_sha" ]; then
-          sed -i "s/#define NVIM_VERSION_PRERELEASE \"-dev\"/#define NVIM_VERSION_PRERELEASE \"-dev-$head_sha\"/" $versiondef_file
-        fi
-      fi
-    fi
     make install || bail "Install failed"
   fi
 

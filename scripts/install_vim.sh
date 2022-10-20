@@ -143,9 +143,7 @@ EOF
   BUILD_DIR="${FLAVOR}-${repo}-${tag}"
   if [ ! -d "$BUILD_DIR" ]; then
     apk_add_build_dep git
-    mkdir -p "$BUILD_DIR"
-    cd "$BUILD_DIR"
-    git clone "https://github.com/$repo/${tag}"
+    git clone -b "$tag" "https://github.com/$repo" "$BUILD_DIR"
   else
     cd "$BUILD_DIR"
   fi

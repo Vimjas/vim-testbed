@@ -9,6 +9,14 @@ on:
       - master
 
 jobs:
+  test_full_example:
+    name: Test full example
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: make build_example_for_test
+      - run: make --keep-going test_example
+
   test_single:
     # Single/simple build instructions to ensure e.g. that build deps for -py2
     # do not implicitly fix -py3 builds (which might fail otherwise).
@@ -56,11 +64,3 @@ jobs:
           EOF
           make build_example_for_test
       - run: make -C example test_vims_basic_test
-
-  test_full_example:
-    name: Test full example
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: make build_example_for_test
-      - run: make --keep-going test_example

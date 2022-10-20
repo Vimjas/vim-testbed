@@ -49,7 +49,7 @@ Flag | Description
 `-tag` | The Vim/Neovim release.  It should be a valid tag/commit hash, with an optional GitHub repo prefix.  E.g. `master`, `neovim:master`, `neovim:v0.1.7`, or `username/neovim:branch`.
 `-flavor` | The Vim flavor.  Either `vim` (default) or `neovim`.  If empty, it will be detected from `-tag`.
 `-name` | The name to use for the binary's symlink.  It defaults to `$FLAVOR-$TAG`, e.g. `vim-master` or `neovim-v0.1.7`.
-`-py` | Build with Python 2.
+`-py`/`py2` | Build with Python 2.
 `-py3` | Build with Python 3.
 `-ruby` | Build with Ruby.
 `-lua` | Build with Lua (implied with Neovim 0.2.1+).

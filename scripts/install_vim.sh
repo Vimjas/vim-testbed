@@ -144,6 +144,7 @@ EOF
   if [ ! -d "$BUILD_DIR" ]; then
     apk_add_build_dep git
     git clone -b "$tag" "https://github.com/$repo" "$BUILD_DIR"
+    cd "$BUILD_DIR"
   else
     cd "$BUILD_DIR"
   fi

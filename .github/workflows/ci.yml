@@ -41,7 +41,7 @@ jobs:
             m_args: -tag neovim:master -py2 -py3 -ruby
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Build example for test
         run: |
           cat > example/Dockerfile.tests <<EOF
@@ -55,6 +55,6 @@ jobs:
     name: Test full example
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: make build_example_for_test
       - run: make --keep-going test_example

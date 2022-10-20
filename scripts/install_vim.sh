@@ -243,10 +243,11 @@ build() {
     DEPS_CMAKE_FLAGS="-DUSE_BUNDLED=OFF"
 
     # Use bundled treesitter (not available on Alpine yet).
-    if grep -iq 'USE_BUNDLED_TS_PARSERS' third-party/CMakeLists.txt; then
+    # NOTE: third-party was renamed to cmake.deps in 0.8.
+    if [ -e cmake.deps ] || grep -iq 'USE_BUNDLED_TS_PARSERS' cmake.deps/CMakeLists.txt; then
       DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_TS_PARSERS=ON"
     fi
-    if grep -iq 'USE_BUNDLED_TS' third-party/CMakeLists.txt; then
+    if [ -e cmake.deps ] || grep -iq 'USE_BUNDLED_TS' third-party/CMakeLists.txt; then
       DEPS_CMAKE_FLAGS="$DEPS_CMAKE_FLAGS -DUSE_BUNDLED_TS=ON"
     fi
 
